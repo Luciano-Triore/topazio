@@ -1,0 +1,27 @@
+{
+  "name": "krob-wa-tracer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "KROB WhatsApp Tracker — uazapi webhook capture + CTWA → Meta CAPI (Cloudflare Pages + D1)",
+  "scripts": {
+    "dev": "wrangler pages dev public --d1=DB=krob-wa-tracer-db",
+    "d1:init:local": "wrangler d1 execute krob-wa-tracer-db --local  --file=./migrations/0001_init.sql",
+    "d1:init:remote": "wrangler d1 execute krob-wa-tracer-db --remote --file=./migrations/0001_init.sql",
+    "d1:capi:local": "wrangler d1 execute krob-wa-tracer-db --local  --file=./migrations/0002_capi.sql",
+    "d1:capi:remote": "wrangler d1 execute krob-wa-tracer-db --remote --file=./migrations/0002_capi.sql",
+    "d1:qual:local": "wrangler d1 execute krob-wa-tracer-db --local  --file=./migrations/0003_qualified_lead.sql",
+    "d1:qual:remote": "wrangler d1 execute krob-wa-tracer-db --remote --file=./migrations/0003_qualified_lead.sql",
+    "d1:qualweb:local": "wrangler d1 execute krob-wa-tracer-db --local  --file=./migrations/0016_event_log_qualified.sql",
+    "d1:qualweb:remote": "wrangler d1 execute krob-wa-tracer-db --remote --file=./migrations/0016_event_log_qualified.sql",
+    "d1:migrate:local": "for f in ./migrations/*.sql; do echo \"-- $f\"; wrangler d1 execute krob-wa-tracer-db --local --file=\"$f\" || exit 1; done",
+    "d1:migrate:remote": "for f in ./migrations/*.sql; do echo \"-- $f\"; wrangler d1 execute krob-wa-tracer-db --remote --file=\"$f\" || exit 1; done",
+    "dev:all": "wrangler pages dev . --d1=DB=krob-wa-tracer-db",
+    "d1:backfill:local": "wrangler d1 execute krob-wa-tracer-db --local  --file=./scripts/backfill_ctwa.sql",
+    "d1:backfill:remote": "wrangler d1 execute krob-wa-tracer-db --remote --file=./scripts/backfill_ctwa.sql"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.1",
+    "wrangler": "^3.90.0"
+  }
+}

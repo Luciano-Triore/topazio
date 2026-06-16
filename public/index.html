@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>krob-wa-tracer · inspector</title>
+    <style>
+      :root {
+        color-scheme: dark light;
+        --bg: #0f1115;
+        --fg: #e6e6e6;
+        --muted: #8a8f98;
+        --row: #161922;
+        --row-alt: #11141c;
+        --row-hover: #1d2230;
+        --accent: #7dd3fc;
+        --gold: #fbbf24;
+        --green: #34d399;
+        --red: #f87171;
+        --border: #1f2330;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #fafafa;
+          --fg: #1a1a1a;
+          --muted: #666;
+          --row: #fff;
+          --row-alt: #f3f3f3;
+          --row-hover: #e6f0fa;
+          --accent: #0369a1;
+          --gold: #b45309;
+          --green: #047857;
+          --red: #b91c1c;
+          --border: #d4d4d4;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font: 13px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+      }
+      header {
+        position: sticky; top: 0; z-index: 10;
+        display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+        padding: 10px 16px;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+      }
+      header h1 { font-size: 14px; margin: 0 12px 0 0; font-weight: 600; }
+      nav { display: flex; gap: 4px; }
+      nav button {
+        background: transparent; color: var(--muted);
+        border: 1px solid transparent; border-radius: 4px;
+        padding: 4px 10px; font: inherit; cursor: pointer;
+      }
+      nav button:hover { color: var(--fg); }
+      nav button.active { color: var(--fg); border-color: var(--border); background: var(--row); }
+      header label { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+      header input[type=text] {
+        background: var(--row); color: var(--fg);
+        border: 1px solid var(--border); border-radius: 4px;
+        padding: 4px 8px; font: inherit; width: 160px;
+      }
+      header button.btn {
+        background: var(--row); color: var(--fg);
+        border: 1px solid var(--border); border-radius: 4px;
+        padding: 4px 10px; font: inherit; cursor: pointer;
+      }
+      header button.btn:hover { background: var(--row-hover); }
+      .count { color: var(--muted); margin-left: auto; }
+      .status { color: var(--muted); font-size: 12px; }
+      .status.err { color: var(--red); }
+      .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 8px 16px; border-bottom: 1px solid var(--border); }
+      .filters.hidden { display: none; }
+      .summary { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 16px; color: var(--muted); font-size: 12px; }
+      .summary .chip { background: var(--row); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
+      .summary .chip b { color: var(--fg); }
+
+      table {
+        width: 100%; border-collapse: collapse;
+        font-variant-numeric: tabular-nums;
+      }
+      th, td {
+        text-align: left; padding: 6px 10px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      th {
+        position: sticky; top: 49px;
+        background: var(--bg);
+        color: var(--muted);
+        font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+      }
+      tbody tr { background: var(--row); cursor: pointer; }
+      tbody tr:nth-child(even) { background: var(--row-alt); }
+      tbody tr:hover { background: var(--row-hover); }
+      td.content, td.adtitle { max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .badge {
+        display: inline-block;
+        padding: 1px 6px; border-radius: 3px;
+        font-size: 11px; font-weight: 500;
+        background: var(--row); color: var(--muted);
+        border: 1px solid var(--border);
+        margin-right: 4px;
+      }
+      .badge.ctwa { background: var(--gold); color: #1a1a1a; border-color: transparent; }
+      .badge.track { background: var(--gold); color: #1a1a1a; border-color: transparent; opacity: 0.7; }
+      .badge.me { background: var(--accent); color: #1a1a1a; border-color: transparent; }
+      .badge.lead-sent { background: var(--green); color: #06281e; border-color: transparent; }
+      .badge.lead-failed, .badge.lead-dead, .badge.lead-expired { background: var(--red); color: #2a0a0a; border-color: transparent; }
+      .badge.lead-pending, .badge.lead-sending { background: var(--accent); color: #06212b; border-color: transparent; }
+      .badge.lead-skipped_no_creds { background: var(--muted); color: var(--bg); border-color: transparent; }
+      .badge.pur-sent { background: var(--green); color: #06281e; border-color: transparent; }
+      .badge.pur-failed { background: var(--red); color: #2a0a0a; border-color: transparent; }
+      .badge.pur-pending, .badge.pur-sending { background: var(--accent); color: #06212b; border-color: transparent; }
+      .badge.pur-skipped_no_creds { background: var(--muted); color: var(--bg); border-color: transparent; }
+      .badge.qual-sent { background: var(--green); color: #06281e; border-color: transparent; }
+      .badge.qual-failed { background: var(--red); color: #2a0a0a; border-color: transparent; }
+      .badge.qual-pending, .badge.qual-sending { background: var(--accent); color: #06212b; border-color: transparent; }
+      .badge.qual-skipped_no_creds { background: var(--muted); color: var(--bg); border-color: transparent; }
+
+      /* Fire-purchase form in the conversion drawer */
+      .purchase-box { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+      .purchase-box label { color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+      .purchase-box input {
+        background: var(--row); color: var(--fg);
+        border: 1px solid var(--border); border-radius: 4px;
+        padding: 4px 8px; font: inherit; width: 110px;
+      }
+      .purchase-box input.cur { width: 60px; text-transform: uppercase; }
+      .purchase-box button {
+        background: var(--gold); color: #1a1a1a; border: 0; border-radius: 4px;
+        padding: 5px 12px; font: inherit; font-weight: 600; cursor: pointer;
+      }
+      .purchase-box button:disabled { opacity: 0.5; cursor: default; }
+      .purchase-box .note { color: var(--muted); font-size: 11px; }
+
+      /* Drawer */
+      .drawer {
+        position: fixed; top: 0; right: 0; bottom: 0;
+        width: min(780px, 96vw);
+        background: var(--bg);
+        border-left: 1px solid var(--border);
+        transform: translateX(100%);
+        transition: transform 160ms ease;
+        display: flex; flex-direction: column;
+        z-index: 20;
+      }
+      .drawer.open { transform: translateX(0); }
+      .drawer header {
+        position: static;
+        border-bottom: 1px solid var(--border);
+        padding: 10px 14px;
+      }
+      .drawer .body {
+        flex: 1; overflow: auto;
+        padding: 14px;
+        font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .drawer .close {
+        margin-left: auto;
+        background: transparent; border: 0; color: var(--muted); font-size: 18px; cursor: pointer;
+      }
+      .drawer .meta {
+        padding: 8px 14px; font-size: 12px; color: var(--muted);
+        border-bottom: 1px solid var(--border);
+        display: flex; gap: 14px; flex-wrap: wrap;
+      }
+      .drawer .meta b { color: var(--fg); font-weight: 500; }
+      .drawer h3 { margin: 0; padding: 10px 14px 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 500; }
+      .capi-entry { border-top: 1px dashed var(--border); padding: 10px 14px; font: 11px/1.4 ui-monospace, monospace; }
+      .capi-entry .hdr { display: flex; gap: 12px; color: var(--muted); margin-bottom: 4px; }
+      .capi-entry .hdr b { color: var(--fg); }
+      .capi-entry pre { background: var(--row-alt); border: 1px solid var(--border); border-radius: 3px; padding: 8px; margin: 4px 0; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>krob-wa-tracer</h1>
+      <nav id="tabs">
+        <button data-tab="events" class="active">events</button>
+        <button data-tab="conversions">conversions</button>
+      </nav>
+      <span class="status" id="status">idle</span>
+      <span class="count" id="count"></span>
+    </header>
+
+    <div class="filters" id="filtersEvents">
+      <label><input type="checkbox" id="onlyCtwa" /> only CTWA</label>
+      <label>phone <input type="text" id="senderPn" placeholder="5511000000000" /></label>
+      <label><input type="checkbox" id="autoRefresh" checked /> auto-refresh (5s)</label>
+      <button class="btn" id="refreshBtn">refresh</button>
+    </div>
+
+    <div class="filters hidden" id="filtersConversions">
+      <label>lead status
+        <select id="leadStatus" style="background:var(--row);color:var(--fg);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font:inherit;">
+          <option value="">all</option>
+          <option value="sent">sent</option>
+          <option value="pending">pending</option>
+          <option value="sending">sending</option>
+          <option value="failed">failed</option>
+          <option value="dead">dead</option>
+          <option value="expired">expired</option>
+          <option value="skipped_no_creds">skipped (no creds)</option>
+        </select>
+      </label>
+      <label>campaign id <input type="text" id="campaignId" placeholder="123456789..." /></label>
+      <label>ad id <input type="text" id="adId" placeholder="120244597..." /></label>
+      <label><input type="checkbox" id="autoRefreshConv" checked /> auto-refresh (10s)</label>
+      <button class="btn" id="refreshBtnConv">refresh</button>
+      <button class="btn" id="flushBtn" title="Re-fire any conversion not yet sent + enrich missing ad names">flush pending</button>
+    </div>
+
+    <div class="summary hidden" id="convSummary"></div>
+
+    <table id="eventsTable">
+      <thead>
+        <tr>
+          <th>id</th>
+          <th>received</th>
+          <th>sender</th>
+          <th>phone</th>
+          <th>type</th>
+          <th>content / ad</th>
+          <th>flags</th>
+        </tr>
+      </thead>
+      <tbody id="rowsEvents"></tbody>
+    </table>
+
+    <table id="convTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>id</th>
+          <th>first seen</th>
+          <th>sender</th>
+          <th>campaign</th>
+          <th>adset</th>
+          <th>ad</th>
+          <th>lead</th>
+          <th>purchase</th>
+          <th>qualified</th>
+          <th>sent at</th>
+        </tr>
+      </thead>
+      <tbody id="rowsConv"></tbody>
+    </table>
+
+    <div class="drawer" id="drawer" aria-hidden="true">
+      <header>
+        <strong id="drawerTitle">event</strong>
+        <button class="close" id="drawerClose" aria-label="close">×</button>
+      </header>
+      <div class="meta" id="drawerMeta"></div>
+      <div id="drawerPurchase"></div>
+      <div id="drawerQualified"></div>
+      <h3 id="drawerSubtitle" style="display:none;">CAPI log</h3>
+      <div id="drawerCapi"></div>
+      <div class="body" id="drawerBody"></div>
+    </div>
+
+    <script>
+      const TOKEN_KEY = 'krob.wa.token';
+      // Strip whitespace + control chars — a stray newline from pasting the
+      // secret makes fetch() throw "Invalid value" on the header.
+      function sanitizeToken(t) {
+        return (t || '').replace(/\s/g, '');
+      }
+      function getToken() {
+        let t = sanitizeToken(sessionStorage.getItem(TOKEN_KEY));
+        if (!t) {
+          t = sanitizeToken(prompt('WEBHOOK_SECRET (x-webhook-token)'));
+          if (t) sessionStorage.setItem(TOKEN_KEY, t);
+        }
+        return t;
+      }
+      function clearToken() { sessionStorage.removeItem(TOKEN_KEY); }
+
+      async function api(path) {
+        const token = getToken();
+        const r = await fetch(path, { headers: { 'x-webhook-token': token } });
+        if (r.status === 401) { clearToken(); throw new Error('unauthorized (token cleared, refresh)'); }
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      }
+
+      function fmtTime(ms) {
+        if (!ms) return '';
+        const d = new Date(ms);
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      }
+      function fmtDate(ms) { if (!ms) return ''; return new Date(ms).toLocaleString(); }
+      function escape(s) {
+        return String(s ?? '')
+          .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+      }
+
+      // ---------- tabs ----------
+      let activeTab = 'events';
+      document.getElementById('tabs').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-tab]');
+        if (!btn) return;
+        activeTab = btn.dataset.tab;
+        for (const b of document.querySelectorAll('#tabs button')) b.classList.toggle('active', b.dataset.tab === activeTab);
+        document.getElementById('filtersEvents').classList.toggle('hidden', activeTab !== 'events');
+        document.getElementById('filtersConversions').classList.toggle('hidden', activeTab !== 'conversions');
+        document.getElementById('convSummary').classList.toggle('hidden', activeTab !== 'conversions');
+        document.getElementById('eventsTable').style.display = activeTab === 'events' ? '' : 'none';
+        document.getElementById('convTable').style.display = activeTab === 'conversions' ? '' : 'none';
+        load();
+      });
+
+      // ---------- events tab ----------
+      const els = {
+        rowsEvents: document.getElementById('rowsEvents'),
+        rowsConv: document.getElementById('rowsConv'),
+        count: document.getElementById('count'),
+        status: document.getElementById('status'),
+        convSummary: document.getElementById('convSummary'),
+        onlyCtwa: document.getElementById('onlyCtwa'),
+        senderPn: document.getElementById('senderPn'),
+        autoRefresh: document.getElementById('autoRefresh'),
+        refreshBtn: document.getElementById('refreshBtn'),
+        leadStatus: document.getElementById('leadStatus'),
+        campaignId: document.getElementById('campaignId'),
+        adId: document.getElementById('adId'),
+        autoRefreshConv: document.getElementById('autoRefreshConv'),
+        refreshBtnConv: document.getElementById('refreshBtnConv'),
+        flushBtn: document.getElementById('flushBtn'),
+        drawer: document.getElementById('drawer'),
+        drawerTitle: document.getElementById('drawerTitle'),
+        drawerMeta: document.getElementById('drawerMeta'),
+        drawerPurchase: document.getElementById('drawerPurchase'),
+        drawerQualified: document.getElementById('drawerQualified'),
+        drawerSubtitle: document.getElementById('drawerSubtitle'),
+        drawerCapi: document.getElementById('drawerCapi'),
+        drawerBody: document.getElementById('drawerBody'),
+        drawerClose: document.getElementById('drawerClose'),
+      };
+
+      async function load() {
+        if (activeTab === 'events') return loadEvents();
+        if (activeTab === 'conversions') return loadConversions();
+      }
+
+      async function loadEvents() {
+        const qs = new URLSearchParams({ limit: '50' });
+        // Backwards-compat: the events endpoint filters by has_track_data, but
+        // CTWA messages have has_track_data=0. So this checkbox now means "is_ctwa".
+        if (els.onlyCtwa.checked) qs.set('has_track', '1'); // legacy filter, harmless
+        const pn = els.senderPn.value.trim();
+        if (pn) qs.set('sender_pn', pn);
+
+        setStatus('loading…');
+        try {
+          const { events, count } = await api(`/api/events?${qs}`);
+          const filtered = els.onlyCtwa.checked ? events.filter((e) => e.is_ctwa === 1) : events;
+          renderEvents(filtered);
+          els.count.textContent = `${filtered.length} of ${count}`;
+          setStatus(`updated ${fmtTime(Date.now())}`);
+        } catch (e) { setStatus(e.message, true); }
+      }
+
+      function renderEvents(events) {
+        els.rowsEvents.innerHTML = events
+          .map((e) => {
+            const badges = [];
+            if (e.is_ctwa) badges.push(`<span class="badge ctwa" title="CTWA: ${escape(e.entry_point_app || '')}/${escape(e.entry_point_source || '')}">CTWA</span>`);
+            if (e.has_track_data && !e.is_ctwa) badges.push(`<span class="badge track">track</span>`);
+            if (e.from_me) badges.push(`<span class="badge me">me</span>`);
+            const adLine = e.ad_title
+              ? `<span style="color:var(--gold);">📣 ${escape(e.ad_title)}</span> · ${escape(e.message_content || '')}`
+              : escape(e.message_content || '');
+            return `
+              <tr data-event-id="${e.id}">
+                <td>${e.id}</td>
+                <td title="${escape(fmtDate(e.received_at))}">${escape(fmtTime(e.received_at))}</td>
+                <td>${escape(e.sender_name || '')}</td>
+                <td>${escape(e.sender_pn || '')}</td>
+                <td>${escape(e.message_type || '')}</td>
+                <td class="content">${adLine}</td>
+                <td>${badges.join('')}</td>
+              </tr>
+            `;
+          }).join('');
+      }
+
+      els.rowsEvents.addEventListener('click', (ev) => {
+        const tr = ev.target.closest('tr[data-event-id]');
+        if (!tr) return;
+        openEventDrawer(tr.dataset.eventId);
+      });
+
+      async function openEventDrawer(id) {
+        showDrawer(`event #${id}`);
+        try {
+          const { event } = await api(`/api/events/${id}`);
+          els.drawerMeta.innerHTML = `
+            <span><b>received</b> ${escape(fmtDate(event.received_at))}</span>
+            <span><b>type</b> ${escape(event.message_type || '')}</span>
+            <span><b>sender</b> ${escape(event.sender_name || '')} (${escape(event.sender_pn || '')})</span>
+            ${event.is_ctwa ? `<span><b>ctwa_clid</b> ${escape((event.ctwa_clid || '').slice(0, 24))}…</span>` : ''}
+            ${event.ad_source_id ? `<span><b>ad_id</b> ${escape(event.ad_source_id)}</span>` : ''}
+          `;
+          let pretty;
+          try { pretty = JSON.stringify(JSON.parse(event.raw_payload), null, 2); }
+          catch { pretty = event.raw_payload; }
+          els.drawerBody.textContent = pretty;
+        } catch (e) { els.drawerMeta.textContent = e.message; }
+      }
+
+      // ---------- conversions tab ----------
+      async function loadConversions() {
+        const qs = new URLSearchParams({ limit: '100' });
+        if (els.leadStatus.value) qs.set('lead_status', els.leadStatus.value);
+        if (els.campaignId.value.trim()) qs.set('campaign_id', els.campaignId.value.trim());
+        if (els.adId.value.trim()) qs.set('ad_id', els.adId.value.trim());
+
+        setStatus('loading…');
+        try {
+          const { conversions, count, summary } = await api(`/api/conversions?${qs}`);
+          renderConversions(conversions);
+          els.count.textContent = `${conversions.length} of ${count}`;
+          renderSummary(summary);
+          setStatus(`updated ${fmtTime(Date.now())}`);
+        } catch (e) { setStatus(e.message, true); }
+      }
+
+      function renderSummary(summary) {
+        const order = ['sent', 'pending', 'sending', 'failed', 'dead', 'expired', 'skipped_no_creds'];
+        const html = order.filter((s) => summary[s]).map((s) =>
+          `<span class="chip"><b>${summary[s]}</b> ${s}</span>`,
+        ).join('');
+        els.convSummary.innerHTML = html;
+      }
+
+      function renderConversions(rows) {
+        els.rowsConv.innerHTML = rows.map((c) => `
+          <tr data-conv-id="${c.id}">
+            <td>${c.id}</td>
+            <td title="${escape(fmtDate(c.first_seen_at))}">${escape(fmtTime(c.first_seen_at))}</td>
+            <td>${escape(c.sender_name || '')} <span style="color:var(--muted);">${escape(c.sender_pn || '')}</span></td>
+            <td title="${escape(c.campaign_id || '')}">${escape(c.campaign_name || c.campaign_id || '—')}</td>
+            <td>${escape(c.adset_name || '—')}</td>
+            <td class="adtitle" title="${escape(c.ad_title || '')}">${escape(c.ad_name || c.ad_title || c.ad_id || '—')}</td>
+            <td><span class="badge lead-${escape(c.lead_status)}">${escape(c.lead_status)}</span></td>
+            <td>${purchaseCell(c)}</td>
+            <td>${qualifiedCell(c)}</td>
+            <td>${c.lead_sent_at ? escape(fmtTime(c.lead_sent_at)) : ''}</td>
+          </tr>
+        `).join('');
+      }
+
+      function purchaseCell(c) {
+        if (!c.purchase_status) return '<span style="color:var(--muted);">—</span>';
+        const val = (c.purchase_value != null)
+          ? ` ${escape(c.purchase_currency || '')}${escape(String(c.purchase_value))}`
+          : '';
+        return `<span class="badge pur-${escape(c.purchase_status)}">${escape(c.purchase_status)}${val}</span>`;
+      }
+
+      function qualifiedCell(c) {
+        if (!c.qualified_lead_status) return '<span style="color:var(--muted);">—</span>';
+        return `<span class="badge qual-${escape(c.qualified_lead_status)}">${escape(c.qualified_lead_status)}</span>`;
+      }
+
+      els.rowsConv.addEventListener('click', (ev) => {
+        const tr = ev.target.closest('tr[data-conv-id]');
+        if (!tr) return;
+        openConvDrawer(tr.dataset.convId);
+      });
+
+      async function openConvDrawer(id) {
+        showDrawer(`conversion #${id}`);
+        els.drawerSubtitle.style.display = '';
+        try {
+          const { conversion: c, capi_log } = await api(`/api/conversions/${id}`);
+          els.drawerMeta.innerHTML = `
+            <span><b>first seen</b> ${escape(fmtDate(c.first_seen_at))}</span>
+            <span><b>ctwa_clid</b> ${escape((c.ctwa_clid || '').slice(0, 28))}…</span>
+            <span><b>sender</b> ${escape(c.sender_name || '')} (${escape(c.sender_pn || '')})</span>
+            <span><b>lead</b> <span class="badge lead-${escape(c.lead_status)}">${escape(c.lead_status)}</span> attempts=${c.lead_attempts}</span>
+            ${c.campaign_name ? `<span><b>campaign</b> ${escape(c.campaign_name)}</span>` : ''}
+            ${c.adset_name ? `<span><b>adset</b> ${escape(c.adset_name)}</span>` : ''}
+            ${c.ad_name ? `<span><b>ad</b> ${escape(c.ad_name)}</span>` : ''}
+            ${c.ad_source_url ? `<span><b>url</b> <a href="${escape(c.ad_source_url)}" target="_blank" style="color:var(--accent);">↗</a></span>` : ''}
+            ${c.lead_last_error ? `<span style="color:var(--red);"><b>err</b> ${escape((c.lead_last_error || '').slice(0, 100))}</span>` : ''}
+          `;
+          renderPurchaseBox(c);
+          renderQualifiedLeadBox(c);
+          els.drawerCapi.innerHTML = (capi_log || []).map((e) => {
+            const prettyReq = safePretty(e.request_body);
+            const prettyResp = safePretty(e.response_body);
+            return `
+              <div class="capi-entry">
+                <div class="hdr">
+                  <span><b>${escape(e.event_name)}</b></span>
+                  <span>${escape(fmtDate(e.attempted_at))}</span>
+                  <span>HTTP ${e.response_status ?? '—'}</span>
+                  <span>${e.duration_ms ?? 0}ms</span>
+                  ${e.was_test ? '<span style="color:var(--gold);">TEST</span>' : ''}
+                </div>
+                <pre>${escape(prettyReq)}</pre>
+                <pre>${escape(prettyResp)}</pre>
+              </div>
+            `;
+          }).join('') || `<div class="capi-entry" style="color:var(--muted);">no CAPI attempts yet</div>`;
+          els.drawerBody.textContent = '';
+        } catch (e) { els.drawerMeta.textContent = e.message; }
+      }
+
+      function safePretty(s) {
+        if (!s) return '';
+        try { return JSON.stringify(JSON.parse(s), null, 2); } catch { return s; }
+      }
+
+      // ---------- fire purchase (manual Phase 3) ----------
+      function renderPurchaseBox(c) {
+        const defCur = c.purchase_currency || 'BRL';
+        const sent = c.purchase_status === 'sent';
+        const statusLine = c.purchase_status
+          ? `<span class="badge pur-${escape(c.purchase_status)}">${escape(c.purchase_status)}</span>` +
+            (c.purchase_value != null ? ` <b>${escape(defCur)} ${escape(String(c.purchase_value))}</b>` : '') +
+            (c.purchase_sent_at ? ` <span class="note">at ${escape(fmtDate(c.purchase_sent_at))}</span>` : '') +
+            (c.purchase_last_error ? ` <span class="note" style="color:var(--red);">${escape((c.purchase_last_error || '').slice(0, 80))}</span>` : '')
+          : '<span class="note">no purchase fired</span>';
+        els.drawerPurchase.innerHTML = `
+          <div class="purchase-box">
+            <b>purchase</b> ${statusLine}
+            <span style="flex-basis:100%;height:0;"></span>
+            <label>value <input type="number" min="0" step="0.01" id="purValue" placeholder="0.00" value="${c.purchase_value != null ? escape(String(c.purchase_value)) : ''}" /></label>
+            <label>cur <input type="text" class="cur" id="purCurrency" value="${escape(defCur)}" maxlength="3" /></label>
+            <button id="purBtn">${sent ? 're-fire purchase' : 'fire purchase'}</button>
+            <span class="note">fires a Meta CAPI Purchase tied to this CTWA click</span>
+          </div>
+        `;
+        document.getElementById('purBtn').addEventListener('click', () => firePurchaseUI(c));
+      }
+
+      async function firePurchaseUI(c) {
+        const value = Number(document.getElementById('purValue').value);
+        const currency = (document.getElementById('purCurrency').value || '').trim().toUpperCase();
+        const btn = document.getElementById('purBtn');
+        if (!Number.isFinite(value) || value <= 0) { setStatus('enter a purchase value > 0', true); return; }
+        const force = c.purchase_status === 'sent';
+        if (force && !confirm('A purchase was already sent for this contact. Fire another Purchase event to Meta?')) return;
+        btn.disabled = true;
+        setStatus('firing purchase…');
+        try {
+          const token = getToken();
+          const r = await fetch('/api/fire-purchase', {
+            method: 'POST',
+            headers: { 'x-webhook-token': token, 'content-type': 'application/json' },
+            body: JSON.stringify({ conversion_id: Number(c.id), value, currency: currency || undefined, force }),
+          });
+          if (r.status === 401) { clearToken(); throw new Error('unauthorized (token cleared, refresh)'); }
+          const res = await r.json().catch(() => ({}));
+          if (res.ok) setStatus(`purchase sent: ${res.currency} ${res.value} (attempts=${res.attempts})`);
+          else setStatus(`purchase ${res.purchase_status || res.error || ('HTTP ' + r.status)}`, true);
+          await openConvDrawer(c.id);            // refresh drawer (status + CAPI log)
+          if (activeTab === 'conversions') loadConversions();
+        } catch (e) {
+          setStatus(e.message, true);
+          btn.disabled = false;
+        }
+      }
+
+      // ---------- fire qualified lead (manual) ----------
+      function renderQualifiedLeadBox(c) {
+        const sent = c.qualified_lead_status === 'sent';
+        const statusLine = c.qualified_lead_status
+          ? `<span class="badge qual-${escape(c.qualified_lead_status)}">${escape(c.qualified_lead_status)}</span>` +
+            (c.qualified_lead_sent_at ? ` <span class="note">at ${escape(fmtDate(c.qualified_lead_sent_at))}</span>` : '') +
+            (c.qualified_lead_last_error ? ` <span class="note" style="color:var(--red);">${escape((c.qualified_lead_last_error || '').slice(0, 80))}</span>` : '')
+          : '<span class="note">not qualified yet</span>';
+        els.drawerQualified.innerHTML = `
+          <div class="purchase-box">
+            <b>qualified lead</b> ${statusLine}
+            <span style="flex-basis:100%;height:0;"></span>
+            <button id="qualBtn">${sent ? 're-fire qualified lead' : 'mark qualified lead'}</button>
+            <span class="note">fires a Meta CAPI QualifiedLead tied to this CTWA click</span>
+          </div>
+        `;
+        document.getElementById('qualBtn').addEventListener('click', () => fireQualifiedLeadUI(c));
+      }
+
+      async function fireQualifiedLeadUI(c) {
+        const btn = document.getElementById('qualBtn');
+        const sent = c.qualified_lead_status === 'sent';
+        // Confirm before every send — a QualifiedLead is a real conversion event,
+        // so a misclick must not fire one silently.
+        const prompt = sent
+          ? 'A qualified lead was already sent for this contact. Fire another QualifiedLead event to Meta?'
+          : 'Send a qualified-lead event for this contact to Meta?';
+        if (!confirm(prompt)) return;
+        btn.disabled = true;
+        setStatus('firing qualified lead…');
+        try {
+          const token = getToken();
+          const r = await fetch('/api/fire-qualified-lead', {
+            method: 'POST',
+            headers: { 'x-webhook-token': token, 'content-type': 'application/json' },
+            body: JSON.stringify({ conversion_id: Number(c.id), force: sent }),
+          });
+          if (r.status === 401) { clearToken(); throw new Error('unauthorized (token cleared, refresh)'); }
+          const res = await r.json().catch(() => ({}));
+          if (res.ok) setStatus(`qualified lead sent (attempts=${res.attempts})`);
+          else setStatus(`qualified lead ${res.qualified_lead_status || res.error || ('HTTP ' + r.status)}`, true);
+          await openConvDrawer(c.id);            // refresh drawer (status + CAPI log)
+          if (activeTab === 'conversions') loadConversions();
+        } catch (e) {
+          setStatus(e.message, true);
+          btn.disabled = false;
+        }
+      }
+
+      // ---------- drawer common ----------
+      function showDrawer(title) {
+        els.drawer.classList.add('open');
+        els.drawer.setAttribute('aria-hidden', 'false');
+        els.drawerTitle.textContent = title;
+        els.drawerMeta.textContent = 'loading…';
+        els.drawerBody.textContent = '';
+        els.drawerCapi.innerHTML = '';
+        els.drawerPurchase.innerHTML = '';
+        els.drawerQualified.innerHTML = '';
+        els.drawerSubtitle.style.display = 'none';
+      }
+      els.drawerClose.addEventListener('click', () => {
+        els.drawer.classList.remove('open');
+        els.drawer.setAttribute('aria-hidden', 'true');
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') els.drawerClose.click();
+      });
+
+      function setStatus(text, err) {
+        els.status.textContent = text;
+        els.status.classList.toggle('err', !!err);
+      }
+
+      // ---------- wiring ----------
+      els.refreshBtn.addEventListener('click', loadEvents);
+      els.refreshBtnConv.addEventListener('click', loadConversions);
+
+      els.flushBtn.addEventListener('click', async () => {
+        els.flushBtn.disabled = true;
+        setStatus('flushing pending…');
+        try {
+          const token = getToken();
+          const r = await fetch('/api/retry-pending', {
+            method: 'POST',
+            headers: { 'x-webhook-token': token },
+          });
+          if (r.status === 401) { clearToken(); throw new Error('unauthorized (token cleared, refresh)'); }
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          const res = await r.json();
+          setStatus(`flush: ${res.leads_sent}/${res.leads_retried} sent, ${res.ads_enriched} ads enriched` +
+            (res.errors && res.errors.length ? `, ${res.errors.length} errors` : ''));
+          await loadConversions();
+        } catch (e) {
+          setStatus(e.message, true);
+        } finally {
+          els.flushBtn.disabled = false;
+        }
+      });
+      els.onlyCtwa.addEventListener('change', loadEvents);
+      els.leadStatus.addEventListener('change', loadConversions);
+      let debouncePn, debounceCmp, debounceAd;
+      els.senderPn.addEventListener('input', () => { clearTimeout(debouncePn); debouncePn = setTimeout(loadEvents, 300); });
+      els.campaignId.addEventListener('input', () => { clearTimeout(debounceCmp); debounceCmp = setTimeout(loadConversions, 300); });
+      els.adId.addEventListener('input', () => { clearTimeout(debounceAd); debounceAd = setTimeout(loadConversions, 300); });
+
+      let timerEvents = null, timerConv = null;
+      function applyAuto() {
+        if (timerEvents) { clearInterval(timerEvents); timerEvents = null; }
+        if (timerConv) { clearInterval(timerConv); timerConv = null; }
+        if (els.autoRefresh.checked) timerEvents = setInterval(() => { if (activeTab === 'events') loadEvents(); }, 5000);
+        if (els.autoRefreshConv.checked) timerConv = setInterval(() => { if (activeTab === 'conversions') loadConversions(); }, 10000);
+      }
+      els.autoRefresh.addEventListener('change', applyAuto);
+      els.autoRefreshConv.addEventListener('change', applyAuto);
+
+      load();
+      applyAuto();
+    </script>
+  </body>
+</html>

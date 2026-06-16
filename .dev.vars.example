@@ -1,0 +1,41 @@
+# Copy this file to `.dev.vars` for local development with `npm run dev`.
+# `.dev.vars` is gitignored — never commit real secret values.
+#
+# Generate a strong WEBHOOK_SECRET with:  openssl rand -hex 32
+# This same value must be set as a secret on the Pages project AND configured
+# on uazapi as the `x-webhook-token` header. See docs/env-vars.md.
+
+# --- Required: shared secret for the webhook + inspector API ---
+WEBHOOK_SECRET=replace-me-with-a-long-random-string
+
+# --- Optional (Meta CAPI). Leave unset for capture-only mode. ---
+# With these unset, CTWA events are still captured to D1; the Lead just lands
+# as lead_status='skipped_no_creds' instead of being sent to Meta.
+# See docs/meta-capi-setup.md for how to obtain each value.
+# META_DATASET_ID=
+# META_CAPI_TOKEN=
+# META_PAGE_ID=
+# META_TEST_EVENT_CODE=
+# META_CURRENCY=BRL
+# META_LEAD_EVENT_NAME=LeadSubmitted
+# META_PURCHASE_EVENT_NAME=Purchase
+
+# --- Website funnel: LP /topazio + dashboard /dashboard ---
+# DASH_KEY gates the dashboard and the read API (/api/leads) AND the
+# QualifiedLead write (/api/fire-qualified-lead-web). Use a long random string.
+# DASH_KEY=replace-me-with-a-long-random-string
+#
+# Website Pixel + Conversions API (used by functions/tracker.js for the LP form
+# `Lead`/`PageView`, and by /api/fire-qualified-lead-web for the manual
+# `QualifiedLead`). These are the *website* dataset creds (Pixel ID + an access
+# token with ads_management/business_management). Distinct from META_DATASET_ID/
+# META_CAPI_TOKEN above, which power the CTWA business_messaging path.
+# Also paste YOUR_META_PIXEL_ID into topazio/index.html (fbq init).
+# META_PIXEL_ID=
+# META_ACCESS_TOKEN=
+# META_QUALIFIED_LEAD_EVENT_NAME=QualifiedLead
+# DEFAULT_COUNTRY_CODE=55
+#
+# Optional GA4 server-side (Measurement Protocol). Leave unset to skip GA4.
+# GA4_MEASUREMENT_ID=
+# GA4_API_SECRET=

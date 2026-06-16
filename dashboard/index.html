@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Resultados — TRIORE · Topázio</title>
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script>
+
+<style>
+  /* Paleta TRIORE — azul-marinho + dourado (alinhada à LP Topázio) */
+  :root, [data-theme="light"] {
+    --bg:#f4f2ec; --card:#ffffff; --card-2:#faf8f3; --border:#e6e0d4; --line:#f0ebe0;
+    --text:#1B2A4A; --dim:#4A4A5A; --muted:#8a8595;
+    --primary:#1B2A4A; --accent:#B8924A; --secondary:#D4AD6E;
+    --green:#16a34a; --red:#dc2626;
+    --hero-bg:#1B2A4A; --hero-text:#ffffff; --hero-dim:#c9b48a;
+    --shadow:0 1px 2px rgba(27,42,74,.06);
+  }
+  [data-theme="dark"] {
+    --bg:#0e1626; --card:#172238; --card-2:#131c2e; --border:#28324a; --line:#202940;
+    --text:#eaeef6; --dim:#aab4c8; --muted:#6f7c94;
+    --primary:#D4AD6E; --accent:#D4AD6E; --secondary:#B8924A;
+    --green:#3ec16f; --red:#f06464;
+    --hero-bg:#0b1120; --hero-text:#ffffff; --hero-dim:#c9b48a;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+
+  * { box-sizing:border-box; }
+  html,body {
+    background:var(--bg); color:var(--text);
+    font-family:"Lato", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.head { font-family:"Libre Baskerville", Georgia, ui-serif, serif; }
+  .mono { font-variant-numeric:tabular-nums; letter-spacing:-0.01em; }
+
+  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); }
+  .section-label { font-size:.6875rem; text-transform:uppercase; letter-spacing:.12em; font-weight:700; color:var(--muted); }
+
+  .kpi { padding:1.05rem 1.2rem; position:relative; overflow:hidden; }
+  .kpi-rule { position:absolute; top:0; left:0; right:0; height:3px; background:var(--accent); opacity:0; transition:opacity .25s; }
+  .kpi:hover .kpi-rule { opacity:.65; }
+  .kpi-label { font-size:.6875rem; text-transform:uppercase; letter-spacing:.06em; font-weight:600; color:var(--dim); }
+  .kpi-value { font-size:1.7rem; font-weight:700; line-height:1.15; margin-top:.35rem; }
+  .kpi-sub { font-size:.72rem; color:var(--muted); margin-top:.25rem; }
+  .kpi-hero { background:var(--hero-bg); border-color:var(--hero-bg); }
+  .kpi-hero .kpi-label{color:var(--hero-dim);} .kpi-hero .kpi-value{color:var(--hero-text);} .kpi-hero .kpi-sub{color:var(--hero-dim);}
+
+  .pill { display:inline-flex; align-items:center; gap:.3rem; font-size:.625rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:.12rem .45rem; border-radius:6px; }
+  .pill-meta   { background:color-mix(in srgb,#1877f2 16%,transparent); color:#1877f2; }
+  .pill-gold   { background:color-mix(in srgb,var(--accent) 20%,transparent); color:var(--accent); }
+  .pill-muted  { background:color-mix(in srgb,var(--muted) 18%,transparent);  color:var(--muted); }
+  .pill-green  { background:color-mix(in srgb,var(--green) 16%,transparent);  color:var(--green); }
+
+  .seg { display:inline-flex; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:2px; gap:2px; }
+  .seg-btn { padding:.34rem .72rem; font-size:.8125rem; font-weight:600; border-radius:8px; color:var(--dim); cursor:pointer; white-space:nowrap; transition:.12s; }
+  .seg-btn:hover{color:var(--text);} .seg-btn.active{ background:var(--primary); color:#fff; }
+  [data-theme="dark"] .seg-btn.active{ color:#0b1120; }
+
+  .btn { font-size:.8125rem; font-weight:700; padding:.45rem 1rem; border-radius:9px; cursor:pointer; transition:.12s; }
+  .btn:active{ transform:translateY(1px); }
+  .btn-primary{ background:var(--accent); color:#fff; border:1px solid var(--accent); } .btn-primary:hover{opacity:.92;}
+  [data-theme="dark"] .btn-primary{ color:#0b1120; }
+  .btn-ghost{ background:var(--card); color:var(--text); border:1px solid var(--border); } .btn-ghost:hover{ background:var(--card-2); }
+  .btn-sm{ font-size:.72rem; padding:.3rem .6rem; border-radius:8px; font-weight:700; cursor:pointer; border:1px solid var(--border); background:var(--card); color:var(--text);}
+  .btn-sm:hover{ background:var(--card-2);}
+  .date-input { font-size:.8125rem; padding:.36rem .55rem; border:1px solid var(--border); border-radius:9px; background:var(--card); color:var(--text); }
+  .icon-btn{ width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--text);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+  .icon-btn:hover{ background:var(--card-2);}
+
+  table{ width:100%; border-collapse:collapse; }
+  thead th{ font-size:.6875rem; text-transform:uppercase; letter-spacing:.06em; font-weight:700; color:var(--muted); text-align:right; padding:.55rem .8rem; border-bottom:1px solid var(--border); }
+  thead th:first-child{ text-align:left; }
+  tbody td{ padding:.65rem .8rem; font-size:.86rem; text-align:right; border-bottom:1px solid var(--line); }
+  tbody td:first-child{ text-align:left; }
+  tbody tr:last-child td{ border-bottom:none; } tbody tr:hover{ background:var(--card-2); }
+
+  .tab-btn{ padding:.5rem .2rem; font-weight:700; font-size:.9rem; color:var(--muted); border-bottom:2px solid transparent; cursor:pointer; }
+  .tab-btn.active{ color:var(--text); border-bottom-color:var(--accent); }
+
+  #loadbar{ position:fixed; top:0; left:0; height:2px; width:0; background:var(--accent); transition:width .3s,opacity .3s; z-index:60; }
+  .fade-in{ animation:fadeIn .4s ease-out both; }
+  .stagger>*{ animation:fadeIn .4s ease-out both; }
+  .stagger>*:nth-child(2){animation-delay:.04s}.stagger>*:nth-child(3){animation-delay:.08s}.stagger>*:nth-child(4){animation-delay:.12s}
+  @keyframes fadeIn{ from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:translateY(0)} }
+  .is-loading .kpi-value{ color:var(--muted)!important; }
+  .notice{ display:flex; gap:.6rem; align-items:flex-start; background:color-mix(in srgb,var(--accent) 12%,var(--card)); border:1px solid color-mix(in srgb,var(--accent) 35%,transparent); color:var(--text); border-radius:12px; padding:.8rem 1rem; font-size:.82rem; }
+  .modal-bg{ position:fixed; inset:0; background:rgba(11,17,32,.55); backdrop-filter:blur(2px); z-index:70; display:flex; align-items:center; justify-content:center; padding:1rem; }
+  .hidden{ display:none!important; }
+</style>
+</head>
+<body>
+<div id="loadbar"></div>
+
+<!-- ============================ AUTH GATE ============================ -->
+<div id="gate" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4" style="background:var(--bg)">
+  <div class="card w-full max-w-sm p-7 fade-in">
+    <div class="flex items-center gap-3 mb-5">
+      <img src="logo-triore.webp" alt="TRIORE" style="height:40px;width:auto">
+      <div class="font-semibold head" style="color:var(--primary)">TRIORE</div>
+    </div>
+    <div class="font-semibold head mb-1">Painel de Resultados</div>
+    <div class="text-xs mb-4" style="color:var(--muted)">Acesso restrito · Topázio Residence</div>
+    <label class="section-label">Chave de acesso</label>
+    <input id="gate-key" type="password" autocomplete="off" placeholder="DASH_KEY" class="date-input w-full mt-2">
+    <div id="gate-error" class="hidden text-xs mt-2" style="color:var(--red)"></div>
+    <button id="gate-submit" class="btn btn-primary w-full mt-4">Entrar</button>
+  </div>
+</div>
+
+<!-- ============================== APP =============================== -->
+<div id="app" class="hidden min-h-screen">
+
+  <header class="border-b" style="border-color:var(--border);background:var(--card)">
+    <div class="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <img src="logo-triore.webp" alt="TRIORE" style="height:36px;width:auto">
+        <div class="hidden sm:block" style="border-left:1px solid var(--border);height:30px"></div>
+        <div class="hidden sm:block">
+          <div class="font-semibold head leading-tight">Painel de Resultados</div>
+          <div class="text-xs" style="color:var(--muted)">TRIORE · Topázio — Meta Ads · WhatsApp</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="theme-toggle" class="icon-btn" title="Alternar tema" aria-label="Alternar tema">
+          <svg id="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>
+          <svg id="icon-sun" class="hidden" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+        <a href="/dash/" class="text-xs hover:underline self-center" style="color:var(--dim)">Tracking →</a>
+      </div>
+    </div>
+    <div class="max-w-6xl mx-auto px-5">
+      <nav class="flex gap-5">
+        <div class="tab-btn active" data-tab="resultados">Resultados</div>
+        <div class="tab-btn" data-tab="whatsapp">WhatsApp / Comercial</div>
+        <div class="tab-btn" data-tab="atribuicao">Atribuição (UTM)</div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-5 py-6 space-y-7">
+
+    <!-- date range (janela móvel) -->
+    <section class="fade-in flex flex-wrap items-end gap-x-4 gap-y-3">
+      <div class="seg" id="presets">
+        <div class="seg-btn" data-preset="1">Hoje</div>
+        <div class="seg-btn active" data-preset="7">7 dias</div>
+        <div class="seg-btn" data-preset="14">14 dias</div>
+        <div class="seg-btn" data-preset="30">30 dias</div>
+        <div class="seg-btn" data-preset="90">90 dias</div>
+      </div>
+      <div class="ml-auto text-xs self-center" style="color:var(--muted)" id="range-label">&nbsp;</div>
+    </section>
+
+    <div id="notice" class="notice hidden fade-in"><span id="notice-text"></span></div>
+
+    <!-- ======================= TAB: RESULTADOS ======================= -->
+    <div id="tab-resultados">
+      <section>
+        <div class="section-label mb-2.5">Visão geral</div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 stagger">
+          <div class="card kpi"><div class="kpi-rule"></div>
+            <div class="kpi-label">Leads</div>
+            <div class="kpi-value mono" id="k-leads">—</div>
+            <div class="kpi-sub">Formulários enviados no período</div>
+          </div>
+          <div class="card kpi kpi-hero">
+            <div class="kpi-label">Leads qualificados</div>
+            <div class="kpi-value mono" id="k-qualified">—</div>
+            <div class="kpi-sub">Marcados pelo comercial</div>
+          </div>
+          <div class="card kpi"><div class="kpi-rule" style="background:var(--secondary)"></div>
+            <div class="kpi-label">Taxa de qualificação</div>
+            <div class="kpi-value mono" id="k-qrate" style="color:var(--accent)">—</div>
+            <div class="kpi-sub">Qualificados ÷ leads</div>
+          </div>
+          <div class="card kpi"><div class="kpi-rule"></div>
+            <div class="kpi-label">Em dispositivo móvel</div>
+            <div class="kpi-value mono" id="k-mobile">—</div>
+            <div class="kpi-sub">% dos leads no celular</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- daily chart -->
+      <section class="card p-5 fade-in mt-7">
+        <div class="mb-4">
+          <div class="section-label">Performance diária</div>
+          <div class="font-semibold head mt-0.5">Leads por dia</div>
+        </div>
+        <div class="h-72"><canvas id="chart-daily"></canvas></div>
+      </section>
+
+      <!-- leads por origem -->
+      <section class="card p-5 fade-in mt-7">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="pill pill-gold">UTM</span>
+          <div class="font-semibold head">Leads por origem</div>
+        </div>
+        <div class="overflow-x-auto -mx-1">
+          <table>
+            <thead><tr><th>Origem</th><th>Leads</th><th>Qualificados</th><th>% do total</th></tr></thead>
+            <tbody id="rows-origins"><tr><td colspan="4" class="text-center" style="color:var(--muted)">Carregando…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- ======================= TAB: WHATSAPP / COMERCIAL ======================= -->
+    <div id="tab-whatsapp" class="hidden">
+      <section>
+        <div class="section-label mb-2.5">Funil comercial</div>
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 stagger">
+          <div class="card kpi"><div class="kpi-rule"></div>
+            <div class="kpi-label">Leads</div>
+            <div class="kpi-value mono" id="f-leads">—</div>
+            <div class="kpi-sub">Formulários no período</div>
+          </div>
+          <div class="card kpi kpi-hero">
+            <div class="kpi-label">Leads qualificados</div>
+            <div class="kpi-value mono" id="f-qualified">—</div>
+            <div class="kpi-sub">QualifiedLead disparado</div>
+          </div>
+          <div class="card kpi"><div class="kpi-rule" style="background:var(--secondary)"></div>
+            <div class="kpi-label">Taxa de qualificação</div>
+            <div class="kpi-value mono" id="f-qrate" style="color:var(--accent)">—</div>
+            <div class="kpi-sub">Qualificados ÷ leads</div>
+          </div>
+        </div>
+        <div class="notice mt-3">
+          <span>
+            <strong>Qualificação é manual.</strong> O lead vem do formulário da LP (e segue para o WhatsApp).
+            Quando a conversa for um lead realmente qualificado, clique em <em>Qualificar</em> — é enviado o
+            evento <strong>QualifiedLead</strong> ao Meta (CAPI), atribuído pelo <code>fbp/fbc</code> da sessão
+            de origem. A conversa em si é acompanhada no WhatsApp (uazapi).
+          </span>
+        </div>
+      </section>
+
+      <!-- inbox -->
+      <section class="card p-5 fade-in mt-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <div class="font-semibold head">Lista de leads (formulário → WhatsApp)</div>
+          <div class="seg" id="inbox-filter">
+            <div class="seg-btn active" data-status="">Todos</div>
+            <div class="seg-btn" data-status="new">Novos</div>
+            <div class="seg-btn" data-status="qualified">Qualificados</div>
+          </div>
+        </div>
+        <div class="overflow-x-auto -mx-1">
+          <table>
+            <thead><tr><th>Lead</th><th>Origem</th><th>Campanha</th><th>Quando</th><th>Status</th><th>Ação</th></tr></thead>
+            <tbody id="rows-inbox"><tr><td colspan="6" class="text-center" style="color:var(--muted)">Carregando…</td></tr></tbody>
+          </table>
+        </div>
+        <div id="inbox-empty" class="hidden text-sm mt-4 p-4 rounded-xl" style="background:var(--card-2);color:var(--dim)">
+          Nenhum lead no período. A lista é preenchida quando alguém envia o formulário da LP
+          (evento <code>Lead</code> via <code>/tracker</code>).
+        </div>
+      </section>
+    </div>
+
+    <!-- ======================= TAB: ATRIBUIÇÃO (UTM) ======================= -->
+    <div id="tab-atribuicao" class="hidden">
+      <details class="card p-4 fade-in mb-5">
+        <summary class="cursor-pointer font-semibold head text-sm">Padrão de UTMs por origem (clique para ver)</summary>
+        <div class="grid sm:grid-cols-2 gap-x-6 gap-y-1 mt-3 text-xs" style="color:var(--dim)">
+          <div>• <strong>Meta Ads</strong> — <code>utm_source=meta-ads</code> (campanhas do Instagram/Facebook)</div>
+          <div>• <strong>Instagram Bio</strong> — <code>utm_source=instagram-bio</code> (link da bio → LP)</div>
+          <div>• <strong>TikTok Bio</strong> — <code>utm_source=tiktok-bio</code> (link da bio → LP)</div>
+          <div>• <strong>Orgânico / Direto</strong> — sem UTM (referrer de busca ou acesso direto)</div>
+          <div>• <strong>Indicação</strong> — sem UTM · campanha avulsa</div>
+          <div>• <strong>Remarketing</strong> — <code>utm_source=remarketing</code></div>
+        </div>
+      </details>
+
+      <section class="mb-6">
+        <div class="section-label mb-2.5">Resumo por origem</div>
+        <div class="card overflow-x-auto">
+          <table>
+            <thead><tr><th>Origem</th><th>Leads</th><th>Qualificados</th><th>% do total</th></tr></thead>
+            <tbody id="rows-origins-attr"><tr><td colspan="4" class="text-center" style="color:var(--muted)">Carregando…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card p-5 fade-in">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <div class="font-semibold head">Leads por UTM <span style="color:var(--muted)">(lead a lead)</span></div>
+          <select id="origin-filter" class="date-input">
+            <option value="">Todas as origens</option>
+          </select>
+        </div>
+        <div class="overflow-x-auto -mx-1">
+          <table>
+            <thead><tr><th>Quando</th><th>Origem</th><th>Fonte / Mídia</th><th>Campanha</th><th>Conteúdo / Termo</th><th>Status</th></tr></thead>
+            <tbody id="rows-attr"><tr><td colspan="6" class="text-center" style="color:var(--muted)">Carregando…</td></tr></tbody>
+          </table>
+        </div>
+        <div id="attr-empty" class="hidden text-sm mt-4 p-4 rounded-xl" style="background:var(--card-2);color:var(--dim)">
+          Nenhum lead no período.
+        </div>
+      </section>
+    </div>
+
+    <footer class="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs pb-6" style="color:var(--muted)">
+      <span>Fonte: <code>/api/leads</code> · evento <code>Lead</code> (event_log) + sessão (UTMs)</span>
+    </footer>
+  </main>
+</div>
+
+<!-- ============================ CONFIRM MODAL ============================ -->
+<div id="modal" class="modal-bg hidden">
+  <div class="card w-full max-w-md p-6 fade-in">
+    <div class="font-semibold head text-lg mb-1" id="modal-title">Confirmar</div>
+    <div class="text-sm mb-4" style="color:var(--dim)" id="modal-text"></div>
+    <div id="modal-error" class="hidden text-xs mb-3" style="color:var(--red)"></div>
+    <div class="flex justify-end gap-2">
+      <button id="modal-cancel" class="btn btn-ghost">Cancelar</button>
+      <button id="modal-ok" class="btn btn-primary">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // Único endpoint que o painel precisa (auth por DASH_KEY): leads do formulário
+  // com UTMs + status de qualificação. A marcação de qualificado dispara o
+  // QualifiedLead website-CAPI por /api/fire-qualified-lead-web.
+  var LEADS = '/api/leads', QUALIFY = '/api/fire-qualified-lead-web';
+  var KEY = '', chart = null, tab = 'resultados', inboxStatus = '', attrFilter = '';
+  var state = { days: 7 };
+  var allLeads = [], summaryReady = false, originFilterBuilt = false;
+
+  // Origens canônicas (sem Google). Classificação derivada do utm_source.
+  var ORIGINS = [
+    ['meta-ads','Meta Ads'], ['instagram-bio','Instagram Bio'], ['tiktok-bio','TikTok Bio'],
+    ['remarketing','Remarketing'], ['indicacao','Indicação'],
+    ['organico','Orgânico / Direto'], ['outro','Outro']
+  ];
+  var ORIGIN_LABEL = {}; ORIGINS.forEach(function(o){ ORIGIN_LABEL[o[0]]=o[1]; });
+
+  function $(id){ return document.getElementById(id); }
+  function int(n){ return Math.round(Number(n)||0).toLocaleString('pt-BR'); }
+  function pct(n){ return (Number(n)||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:1})+'%'; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function shortDate(d){ return pad(d.getDate())+'/'+pad(d.getMonth()+1); }
+  function whenLabel(ts){
+    var d=new Date(ts*1000), diff=Math.floor(Date.now()/1000)-ts;
+    if(diff<3600) return 'há '+Math.max(1,Math.round(diff/60))+' min';
+    if(diff<86400) return 'há '+Math.round(diff/3600)+' h';
+    return shortDate(d)+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+
+  // Classifica a origem a partir do utm_source da sessão.
+  function classify(l){
+    var s=(l.utm_source||'').toLowerCase().trim();
+    if(!s) return (l.referrer ? 'organico' : 'organico');
+    if(s.indexOf('meta')>=0 || s.indexOf('facebook')>=0 || s==='ig' || s.indexOf('instagram-ad')>=0 || s==='fb') return 'meta-ads';
+    if(s.indexOf('instagram')>=0) return 'instagram-bio';
+    if(s.indexOf('tiktok')>=0) return 'tiktok-bio';
+    if(s.indexOf('remarket')>=0) return 'remarketing';
+    if(s.indexOf('indica')>=0) return 'indicacao';
+    if(ORIGIN_LABEL[s]) return s;
+    return 'outro';
+  }
+  function originPillClass(o){ if(o==='meta-ads') return 'pill-meta'; if(o==='indicacao'||o==='remarketing') return 'pill-green'; if(o==='organico') return 'pill-muted'; return 'pill-gold'; }
+  function isQualified(l){ return l.qualified_lead_status==='sent'; }
+
+  // -------- theme --------
+  function applyTheme(t){ document.documentElement.setAttribute('data-theme',t);
+    $('icon-moon').classList.toggle('hidden', t==='dark'); $('icon-sun').classList.toggle('hidden', t!=='dark');
+    try{ localStorage.setItem('dashTheme',t); }catch(e){}
+    if(allLeads.length) renderChart(); }
+  (function initTheme(){ var t='light'; try{ t=localStorage.getItem('dashTheme')||'light'; }catch(e){} applyTheme(t); })();
+
+  // -------- loadbar --------
+  var barTimer=null;
+  function barStart(){ var b=$('loadbar'); b.style.opacity='1'; b.style.width='0'; requestAnimationFrame(function(){ b.style.width='75%'; }); }
+  function barDone(){ var b=$('loadbar'); b.style.width='100%'; clearTimeout(barTimer); barTimer=setTimeout(function(){ b.style.opacity='0'; b.style.width='0'; },300); }
+
+  // -------- auth --------
+  function initialKey(){ var u=new URL(location.href), k=u.searchParams.get('key');
+    if(k){ try{ sessionStorage.setItem('dashKey',k); }catch(e){} u.searchParams.delete('key'); history.replaceState(null,'',u.pathname+u.search+u.hash); return k; }
+    try{ return sessionStorage.getItem('dashKey')||''; }catch(e){ return ''; } }
+  function openGate(msg){ $('app').classList.add('hidden'); $('gate').classList.remove('hidden');
+    var err=$('gate-error'); if(msg){ err.textContent=msg; err.classList.remove('hidden'); } else err.classList.add('hidden'); $('gate-key').focus(); }
+  function submitGate(){ var k=$('gate-key').value.trim(); if(!k) return; KEY=k;
+    try{ sessionStorage.setItem('dashKey',k); }catch(e){} $('gate').classList.add('hidden'); $('app').classList.remove('hidden'); loadAll(); }
+
+  // -------- fetch --------
+  function loadAll(){
+    barStart(); $('app').classList.add('is-loading');
+    fetch(LEADS+'?key='+encodeURIComponent(KEY)+'&days='+state.days+'&limit=500').then(function(r){
+      if(r.status===401){ barDone(); openGate('Chave inválida.'); throw 'auth'; }
+      if(!r.ok) throw new Error('Erro '+r.status); return r.json();
+    }).then(function(d){ barDone(); $('app').classList.remove('is-loading');
+      if(d.error){ showNotice(d.error); return; }
+      hideNotice();
+      allLeads = (d.leads||[]).map(function(l){ l._origin=classify(l); return l; });
+      $('range-label').textContent = 'Últimos '+state.days+' dia(s) · '+int(allLeads.length)+' lead(s)';
+      renderAll();
+    }).catch(function(e){ if(e==='auth') return; barDone(); $('app').classList.remove('is-loading'); showNotice('Falha ao carregar: '+(e.message||e)); });
+  }
+
+  function showNotice(t){ $('notice-text').textContent=t; $('notice').classList.remove('hidden'); }
+  function hideNotice(){ $('notice').classList.add('hidden'); }
+
+  // -------- render --------
+  function renderAll(){ renderKpis(); renderChart(); renderOrigins(); renderInbox(); buildOriginFilter(); renderAttr(); }
+
+  function renderKpis(){
+    var total=allLeads.length, qual=allLeads.filter(isQualified).length;
+    var mob=allLeads.filter(function(l){ return l.is_mobile; }).length;
+    $('k-leads').textContent=int(total);
+    $('k-qualified').textContent=int(qual);
+    $('k-qrate').textContent= total? pct(qual/total*100):'—';
+    $('k-mobile').textContent= total? pct(mob/total*100):'—';
+    $('f-leads').textContent=int(total);
+    $('f-qualified').textContent=int(qual);
+    $('f-qrate').textContent= total? pct(qual/total*100):'—';
+  }
+
+  function dailyBuckets(){
+    var map={}, today=new Date(); today.setHours(0,0,0,0);
+    for(var i=state.days-1;i>=0;i--){ var d=new Date(today); d.setDate(d.getDate()-i); map[d.getTime()]=0; }
+    allLeads.forEach(function(l){ var d=new Date(l.timestamp*1000); d.setHours(0,0,0,0);
+      if(map[d.getTime()]!==undefined) map[d.getTime()]++; });
+    return Object.keys(map).map(function(k){ return { date:new Date(Number(k)), n:map[k] }; });
+  }
+  function cssvar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+  function hexToRgba(hex,a){ var h=String(hex).replace('#',''); if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    var r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+    if(isNaN(r)) return hex; return 'rgba('+r+','+g+','+b+','+a+')'; }
+  function renderChart(){
+    if(!window.Chart){ return; }
+    var data=dailyBuckets(), ctx=$('chart-daily').getContext('2d');
+    var acc=cssvar('--accent'), grid=cssvar('--line'), tick=cssvar('--muted');
+    if(chart) chart.destroy();
+    chart=new Chart(ctx,{ type:'bar', data:{ labels:data.map(function(r){return shortDate(r.date);}),
+      datasets:[{ label:'Leads', data:data.map(function(r){return r.n;}),
+        backgroundColor:hexToRgba(acc,.85), borderColor:acc, borderWidth:1, borderRadius:5, maxBarThickness:34 }] },
+      options:{ responsive:true, maintainAspectRatio:false,
+        scales:{ x:{ grid:{display:false}, ticks:{ color:tick, font:{size:11}, maxRotation:0, autoSkipPadding:14 } },
+          y:{ beginAtZero:true, grid:{color:grid}, ticks:{ color:tick, font:{size:11}, precision:0 } } },
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:function(c){ return int(c.parsed.y)+' lead(s)'; } } } } } });
+  }
+
+  function aggregateOrigins(){
+    var by={}; allLeads.forEach(function(l){ var o=l._origin; if(!by[o]) by[o]={leads:0,qualified:0}; by[o].leads++; if(isQualified(l)) by[o].qualified++; });
+    return Object.keys(by).map(function(o){ return { origin:o, label:ORIGIN_LABEL[o]||o, leads:by[o].leads, qualified:by[o].qualified }; })
+      .sort(function(a,b){ return b.leads-a.leads; });
+  }
+  function originsTableHtml(){
+    var list=aggregateOrigins(), total=allLeads.length;
+    if(!list.length) return '<tr><td colspan="4" class="text-center" style="color:var(--muted)">Sem dados no período.</td></tr>';
+    return list.map(function(o){
+      return '<tr><td><span class="pill '+originPillClass(o.origin)+'">'+esc(o.label)+'</span></td>'+
+        '<td class="mono">'+int(o.leads)+'</td><td class="mono">'+int(o.qualified)+'</td>'+
+        '<td class="mono">'+(total?pct(o.leads/total*100):'—')+'</td></tr>';
+    }).join('');
+  }
+  function renderOrigins(){ $('rows-origins').innerHTML=originsTableHtml(); $('rows-origins-attr').innerHTML=originsTableHtml(); }
+
+  // -------- inbox (comercial) --------
+  function statusPill(l){ return isQualified(l) ? '<span class="pill pill-green">Qualificado</span>' : '<span class="pill pill-muted">Novo</span>'; }
+  function leadLabel(l){ return l.raw_email ? esc(l.raw_email) : ('Lead '+esc(String(l.event_id||'').slice(0,8))); }
+  function renderInbox(){
+    var tb=$('rows-inbox'), empty=$('inbox-empty');
+    var rows=allLeads.filter(function(l){ if(inboxStatus==='qualified') return isQualified(l); if(inboxStatus==='new') return !isQualified(l); return true; });
+    if(!allLeads.length){ tb.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    if(!rows.length){ tb.innerHTML='<tr><td colspan="6" class="text-center" style="color:var(--muted)">Nenhum lead neste filtro.</td></tr>'; return; }
+    tb.innerHTML=rows.map(function(l){
+      var device='<div class="text-xs mono" style="color:var(--muted)">'+esc(l.os||'')+(l.is_mobile?' · móvel':'')+'</div>';
+      var contact='<div>'+leadLabel(l)+'</div>'+device;
+      var origin='<span class="pill '+originPillClass(l._origin)+'">'+esc(ORIGIN_LABEL[l._origin]||l._origin)+'</span>';
+      var camp=esc(l.utm_campaign||l.utm_content||'—');
+      var q=isQualified(l);
+      var action='<button class="btn-sm" data-id="'+esc(l.event_id)+'" '+(q?'disabled style="opacity:.5"':'')+'>'+(q?'Qualificado':'Qualificar')+'</button>';
+      return '<tr><td>'+contact+'</td><td>'+origin+'</td><td>'+camp+'</td><td class="text-xs">'+whenLabel(l.timestamp)+'</td><td>'+statusPill(l)+'</td><td style="white-space:nowrap">'+action+'</td></tr>';
+    }).join('');
+    tb.querySelectorAll('button[data-id]').forEach(function(b){ if(b.disabled) return;
+      b.addEventListener('click', function(){ openQualify(b.getAttribute('data-id')); }); });
+  }
+
+  // -------- atribuição lead a lead --------
+  function buildOriginFilter(){ if(originFilterBuilt) return; originFilterBuilt=true;
+    var sel=$('origin-filter'); ORIGINS.forEach(function(o){ var op=document.createElement('option'); op.value=o[0]; op.textContent=o[1]; sel.appendChild(op); }); }
+  function renderAttr(){
+    var tb=$('rows-attr'), empty=$('attr-empty');
+    var rows=allLeads.filter(function(l){ return !attrFilter || l._origin===attrFilter; });
+    if(!allLeads.length){ tb.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    if(!rows.length){ tb.innerHTML='<tr><td colspan="6" class="text-center" style="color:var(--muted)">Nenhum lead nesta origem.</td></tr>'; return; }
+    tb.innerHTML=rows.map(function(l){
+      var badge='<span class="pill '+originPillClass(l._origin)+'">'+esc(ORIGIN_LABEL[l._origin]||l._origin)+'</span>';
+      var fonte=esc(l.utm_source||'—')+(l.utm_medium?(' / '+esc(l.utm_medium)):'');
+      var cont=esc(l.utm_content||'—')+(l.utm_term?(' · '+esc(l.utm_term)):'');
+      return '<tr><td class="text-xs">'+whenLabel(l.timestamp)+'</td><td>'+badge+'</td><td class="text-xs">'+fonte+'</td><td>'+esc(l.utm_campaign||'—')+'</td><td class="text-xs">'+cont+'</td><td>'+statusPill(l)+'</td></tr>';
+    }).join('');
+  }
+
+  // -------- qualify modal --------
+  var pendingId=null;
+  function openQualify(eventId){
+    pendingId=eventId;
+    $('modal-title').textContent='Marcar como Lead Qualificado';
+    $('modal-text').textContent='Confirma que este lead é QUALIFICADO? Será enviado o evento QualifiedLead ao Meta (CAPI), atribuído pela sessão de origem (fbp/fbc). Esta ação é registrada e não deve ser repetida.';
+    $('modal-error').classList.add('hidden');
+    $('modal').classList.remove('hidden');
+  }
+  function closeQualify(){ $('modal').classList.add('hidden'); pendingId=null; }
+  function submitQualify(){
+    if(!pendingId) return;
+    $('modal-ok').disabled=true;
+    fetch(QUALIFY+'?key='+encodeURIComponent(KEY),{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ event_id:pendingId }) })
+      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
+      .then(function(res){ $('modal-ok').disabled=false;
+        if(!res.ok && res.j.qualified_lead_status!=='sent'){ var e=$('modal-error'); e.textContent=res.j.error||('Falha ('+(res.j.qualified_lead_status||'?')+')'); e.classList.remove('hidden'); return; }
+        // marca localmente e re-renderiza
+        var lead=allLeads.filter(function(l){return l.event_id===pendingId;})[0]; if(lead) lead.qualified_lead_status='sent';
+        closeQualify(); renderAll();
+      }).catch(function(){ $('modal-ok').disabled=false; var e=$('modal-error'); e.textContent='Erro de rede.'; e.classList.remove('hidden'); });
+  }
+
+  // -------- controls --------
+  function bind(){
+    document.querySelectorAll('#presets .seg-btn').forEach(function(btn){ btn.addEventListener('click', function(){
+      state.days=parseInt(btn.getAttribute('data-preset'),10);
+      document.querySelectorAll('#presets .seg-btn').forEach(function(x){ x.classList.toggle('active', x===btn); }); loadAll(); }); });
+    $('gate-submit').addEventListener('click', submitGate);
+    $('gate-key').addEventListener('keydown', function(e){ if(e.key==='Enter') submitGate(); });
+    $('theme-toggle').addEventListener('click', function(){ applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); });
+
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.addEventListener('click', function(){
+      tab=b.getAttribute('data-tab'); document.querySelectorAll('.tab-btn').forEach(function(x){ x.classList.toggle('active', x===b); });
+      $('tab-resultados').classList.toggle('hidden', tab!=='resultados'); $('tab-whatsapp').classList.toggle('hidden', tab!=='whatsapp');
+      $('tab-atribuicao').classList.toggle('hidden', tab!=='atribuicao');
+      if(tab==='resultados' && allLeads.length) renderChart(); }); });
+
+    $('origin-filter').addEventListener('change', function(){ attrFilter=$('origin-filter').value; renderAttr(); });
+    document.querySelectorAll('#inbox-filter .seg-btn').forEach(function(b){ b.addEventListener('click', function(){
+      inboxStatus=b.getAttribute('data-status'); document.querySelectorAll('#inbox-filter .seg-btn').forEach(function(x){ x.classList.toggle('active', x===b); }); renderInbox(); }); });
+
+    $('modal-cancel').addEventListener('click', closeQualify);
+    $('modal').addEventListener('click', function(e){ if(e.target===$('modal')) closeQualify(); });
+    $('modal-ok').addEventListener('click', submitQualify);
+  }
+
+  function init(){
+    bind();
+    KEY=initialKey(); if(!KEY){ openGate(); return; }
+    $('app').classList.remove('hidden'); loadAll();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+</body>
+</html>

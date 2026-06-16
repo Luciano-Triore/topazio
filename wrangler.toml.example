@@ -1,0 +1,17 @@
+# Copy this file to `wrangler.toml` and fill in your D1 database_id.
+# The `deploy-stack` skill does this for you. `wrangler.toml` is gitignored —
+# only this `.example` is committed, so your database_id never lands in git.
+#
+# Note: Cloudflare Pages with the GitHub integration does NOT read this file at
+# deploy time. It exists so `wrangler pages dev` (local) and the `d1:*` npm
+# scripts can find your database. The production D1 binding (DB) and all secrets
+# are set in the Cloudflare dashboard — see the deploy-stack skill / README.
+
+name = "krob-wa-tracer"
+compatibility_date = "2025-10-01"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "krob-wa-tracer-db"
+database_id = "__REPLACE_ME_DB_ID__"

@@ -1,0 +1,12 @@
+node_modules
+.wrangler
+wrangler.toml
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+# Fonte antiga da LP (PNGs ~8MB) — substituída por topazio/ (.webp). Não publicar.
+LP/
+.env
+.env.*
+.DS_Store
+*.log

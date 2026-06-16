@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Topazio Residence — apartamentos compactos de 60 a 62 m² no centro de Balneário Camboriú. Ideal para quem quer praticidade, sem imóvel grande para cuidar. Pré-lançamento Triore."
+    />
+    <meta name="robots" content="index, follow" />
+    <title>Topazio Residence | Apartamento compacto no centro de BC</title>
+
+    <meta property="og:title" content="Topazio Residence — apartamento do tamanho certo no centro de BC" />
+    <meta property="og:description" content="Compactos de 60 a 62 m², só 17 unidades, centro de Balneário Camboriú. Receba tabela, plantas e condições de pré-lançamento." />
+    <meta property="og:type" content="website" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preload" as="image" href="fotos/fachada.webp" />
+    <link rel="stylesheet" href="css/stylesazul.css" />
+
+    <!--
+      ===================================================================
+      TRAQUEAMENTO — Meta Pixel + Conversions API (server-side via /tracker)
+      O middleware (functions/_middleware.js) já grava a sessão (UTMs / fbclid
+      / fbp / _krob_eid) automaticamente no primeiro acesso. Aqui:
+        1. Pixel do navegador + PageView (deduplicado por event_id).
+        2. PageView server-side via /tracker (Meta CAPI).
+        3. O envio do formulário dispara o evento Lead (pixel + CAPI).
+      O QUE EDITAR: troque YOUR_META_PIXEL_ID pelo ID numérico do pixel.
+      (Sem GA4 nesta página — manter leve. Para GA4, ver
+       examples/lead-form-page/index.html.)
+      ===================================================================
+    -->
+    <script>
+      // ÚNICO valor a editar: o ID numérico do Meta Pixel do Topázio.
+      var META_PIXEL_ID = 'YOUR_META_PIXEL_ID';
+
+      (function () {
+        var pvEventId = (crypto.randomUUID && crypto.randomUUID()) ||
+          (Date.now() + '-' + Math.random().toString(36).slice(2));
+
+        // Pixel do navegador — só inicia se o ID já estiver configurado (evita
+        // erros no console enquanto o ID não foi preenchido). O CAPI server-side
+        // abaixo funciona de qualquer forma.
+        if (/^\d+$/.test(META_PIXEL_ID)) {
+          !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+          n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+          document,'script','https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init', META_PIXEL_ID);
+          fbq('track', 'PageView', {}, { eventID: pvEventId });
+        }
+
+        // PageView server-side (Meta CAPI via /tracker) — sempre.
+        fetch('/tracker', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          keepalive: true,
+          body: JSON.stringify({
+            event_name: 'PageView',
+            event_id: pvEventId,
+            event_time: Math.floor(Date.now() / 1000),
+            event_source_url: window.location.href,
+            user_data: {},
+          }),
+        }).catch(function () {});
+      })();
+    </script>
+  </head>
+  <body data-landing-variant="principal">
+    <div class="urgency-bar" role="status">
+      <span class="urgency-dot" aria-hidden="true"></span>
+      Lançamento - Em obras — <em>Últimas 3 unidades</em> no centro de Balneário Camboriú
+    </div>
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="logo-lockup" href="#topo" aria-label="Topazio Residence — Triore">
+          <img class="logo-img" src="fotos/logo-triore.webp" alt="Triore" width="40" height="40" />
+          <span class="logo">TOPAZIO <span>Residence</span></span>
+        </a>
+        <button type="button" class="btn btn--small btn--whatsapp header-cta" data-wa>
+          Chamar no WhatsApp
+        </button>
+      </div>
+    </header>
+
+    <main id="topo">
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Você viu no Instagram — conheça com calma, sem pressa</p>
+            <p class="hero-audience-badge">Ideal para quem já tem <strong><em>a vida feita</em></strong></p>
+            <h1>Apartamento do <em>tamanho certo</em> no centro de BC</h1>
+            <p class="hero-lead">
+              Você está no lugar certo se quer <strong>praticidade no dia a dia</strong>,
+              <strong>localização central</strong> com farmácia e mercado perto, e <strong>compacto</strong> — sem
+              apartamento grande para limpar e manter.
+            </p>
+            <ul class="hero-highlights">
+              <li>Plantas de <strong>60 a 62 m²</strong> — 1 suíte + 1 dormitório + 1 vaga</li>
+              <li>Somente <strong>17 unidades</strong> — prédio pequeno, vizinhança tranquila</li>
+              <li>Mercado, farmácia e comércio <strong>a poucos minutos a pé</strong></li>
+            </ul>
+            <div class="hero-ctas">
+              <button type="button" class="btn btn--whatsapp btn--lg" data-wa>
+                Receber pelo WhatsApp
+              </button>
+            </div>
+            <p class="hero-note">
+              Atendimento pessoal · sem compromisso · no seu ritmo
+            </p>
+          </div>
+          <div class="hero-card" aria-label="Resumo do empreendimento">
+            <div class="hero-card-badge">Lançamento</div>
+            <h2>Topazio Residence</h2>
+            <p class="hero-card-address">Rua 1500, 913 — Centro · BC/SC</p>
+            <ul class="hero-card-stats">
+              <li><span>17</span> unidades</li>
+              <li><span>60–62</span> m²</li>
+              <li><span>Lazer</span> completo</li>
+            </ul>
+            <p class="hero-card-note">
+              Obra iniciada · entrega prevista para dezembro de 2028
+            </p>
+          </div>
+        </div>
+      </section>
+
+    <!-- ═══════════ GALERIA DE IMAGENS — FACHADA ═══════════ -->
+    <section class="section section--alt" aria-label="Imagens do empreendimento">
+      <div class="container">
+        <h2 class="section-title">Conheça o empreendimento</h2>
+        <p class="section-subtitle">Fachada, áreas comuns e entorno — imagens reais do projeto</p>
+
+        <div class="img-gallery img-gallery--main" style="margin-bottom:1rem;">
+          <figure class="img-slot img-slot--hero img-slot--span2">
+            <img src="fotos/fachada.webp" alt="Fachada principal Edifício Topázio" loading="lazy" />
+          </figure>
+          <figure class="img-slot img-slot--medium">
+            <img src="fotos/lp-academia.webp" alt="Academia do Topázio" loading="lazy" />
+          </figure>
+          <figure class="img-slot img-slot--medium">
+            <img src="fotos/lp-coworking.webp" alt="Coworking do Topázio" loading="lazy" />
+          </figure>
+        </div>
+
+        <div class="img-gallery img-gallery--3">
+          <figure class="img-slot img-slot--square">
+            <img src="fotos/lp-play.webp" alt="Playground" loading="lazy" />
+          </figure>
+          <figure class="img-slot img-slot--square">
+            <img src="fotos/lp-piscina.webp" alt="Piscina" loading="lazy" />
+          </figure>
+          <figure class="img-slot img-slot--square">
+            <img src="fotos/lp-praca.webp" alt="Praça do fogo" loading="lazy" />
+          </figure>
+        </div>
+      </div>
+    </section>
+
+      <section class="section section--alt" id="para-quem">
+        <div class="container container--narrow">
+          <h2 class="section-title">Feito para quem valoriza praticidade</h2>
+          <p class="intro-text">
+            Muita gente já passou da fase de “apartamento enorme”.
+            O Topazio foi pensado para quem quer <strong>morar em BC</strong> com
+            conforto, sem espaço sobrando para virar trabalho.
+          </p>
+          <ul class="check-list">
+            <li>Menos metragem = menos tempo e dinheiro com limpeza e manutenção</li>
+            <li>Plantas inteligentes: tudo à mão, sem corredor longo nem cômodos vazios</li>
+            <li>1 vaga de garagem — chega, estaciona, sobe</li>
+            <li>Áreas comuns completas (piscina, salão, academia) sem precisar de casa grande</li>
+            <li>Moradia definitiva no centro da cidade</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" id="beneficios">
+        <div class="container">
+          <h2 class="section-title">Por que o Topazio combina com você</h2>
+          <p class="section-subtitle">
+            Mais do que metragem — é um estilo de vida simples, no endereço mais procurado de Balneário Camboriú.
+          </p>
+          <div class="benefits-grid">
+            <article class="benefit-card">
+              <span class="benefit-icon" aria-hidden="true">01</span>
+              <h3>Compacto de verdade</h3>
+              <p>De 60 a 62 m². O espaço que importa, sem quartos e salas que você quase não usa.</p>
+            </article>
+            <article class="benefit-card">
+              <span class="benefit-icon" aria-hidden="true">02</span>
+              <h3>Fácil de cuidar</h3>
+              <p>Menos móveis, menos piso, menos janela. Ideal para quem quer praticidade no dia a dia.</p>
+            </article>
+            <article class="benefit-card">
+              <span class="benefit-icon" aria-hidden="true">03</span>
+              <h3>Centro de BC</h3>
+              <p>Entre a 3ª e a 4ª Avenida. Farmácia, mercado, médico e comércio por perto — sem depender de carro para tudo.</p>
+            </article>
+            <article class="benefit-card">
+              <span class="benefit-icon" aria-hidden="true">04</span>
+              <h3>Só 17 moradores</h3>
+              <p>Prédio exclusivo, com poucas unidades. Mais tranquilidade que um edifício grande e cheio.</p>
+            </article>
+            <article class="benefit-card">
+              <span class="benefit-icon" aria-hidden="true">05</span>
+              <h3>Lazer no prédio</h3>
+              <p>Piscina adulto e infantil, salão de festas, gourmet, academia, playground e horta — use quando quiser.</p>
+            </article>
+            <article class="benefit-card">
+              <span class="benefit-icon" aria-hidden="true">06</span>
+              <h3>Triore Empreendimentos</h3>
+              <p>Mais de 37 anos de história, 32 empreendimentos entregues e 61 mil m² construídos em BC e região.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+    <!-- ═══════════ IMAGENS 3D / RENDERS ═══════════ -->
+    <section class="section" id="renders">
+      <div class="container">
+        <h2 class="section-title">Veja como ficará o seu apartamento</h2>
+        <p class="section-subtitle">Imagens 3D e renders do interior — visualize sua futura moradia</p>
+        <figure class="img-slot img-slot--wide" style="margin-bottom:1rem;">
+          <img src="fotos/lp-ap.webp" alt="Render 3D sala de estar Topázio" loading="lazy" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- ═══════════ PLANTAS BAIXAS ═══════════ -->
+    <section class="section section--alt" id="plantas">
+      <div class="container">
+        <h2 class="section-title">Escolha o tamanho que faz sentido para você</h2>
+        <p class="section-subtitle">
+          Todas com 1 suíte + 1 dormitório e 1 vaga. A disponibilidade exata eu confirmo com você no WhatsApp.
+        </p>
+        <div class="units-grid">
+          <article class="unit-card">
+            <figure class="img-slot img-slot--medium">
+              <img src="fotos/tipo-3.webp" alt="Planta baixa Tipo 3" loading="lazy" />
+            </figure>
+            <div class="unit-card-body">
+              <span class="unit-tag">Tipo 3</span>
+              <h3>Planta ~60 m²</h3>
+              <p class="unit-desc">Para quem quer o essencial: praticidade máxima e menor investimento de entrada.</p>
+            </div>
+          </article>
+          <article class="unit-card">
+            <figure class="img-slot img-slot--medium">
+              <img src="fotos/tipo-2.webp" alt="Planta baixa Tipo 2" loading="lazy" />
+            </figure>
+            <div class="unit-card-body">
+              <span class="unit-tag">Tipo 2</span>
+              <h3>Planta ~61,55 m²</h3>
+              <p class="unit-desc">Um pouco mais de conforto no quarto e na sala — ainda fácil de manter.</p>
+            </div>
+          </article>
+          <article class="unit-card">
+            <figure class="img-slot img-slot--medium">
+              <img src="fotos/tipo-1-dif.webp" alt="Planta baixa apartamento 62m²" loading="lazy" />
+            </figure>
+            <div class="unit-card-body">
+              <span class="unit-tag">Tipo 1 Dif.</span>
+              <h3>Planta Diferenciada</h3>
+              <p class="unit-desc">Possui um grande terraço externo. Ideal para quem quer se sentir numa casa.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+      <section class="section section--alt" id="como-funciona">
+        <div class="container">
+          <h2 class="section-title">Como receber as informações — 3 passos simples</h2>
+          <ol class="steps">
+            <li class="step">
+              <span class="step-num">1</span>
+              <div>
+                <h3>Fale comigo no WhatsApp ou pelo formulário</h3>
+                <p>Me diga seu nome e se prefere planta menor ou um pouco maior. Leva poucos minutos.</p>
+              </div>
+            </li>
+            <li class="step">
+              <span class="step-num">2</span>
+              <div>
+                <h3>Receba tabela, plantas e condições</h3>
+                <p>Envio tudo direto no seu celular: valores, formas de pagamento e material do pré-lançamento.</p>
+              </div>
+            </li>
+            <li class="step">
+              <span class="step-num">3</span>
+              <div>
+                <h3>Decida com calma</h3>
+                <p>Quem entra no pré-lançamento tem entrada facilitada, parcelamento em até 72x e valores corrigidos pelo CUB até as chaves.</p>
+              </div>
+            </li>
+          </ol>
+          <p class="steps-cta-text">
+            Valores, formas de pagamento e tabela completa são enviados diretamente pelo WhatsApp.
+          </p>
+          <div class="steps-cta-wrap">
+            <button type="button" class="btn btn--whatsapp btn--lg" data-wa>
+              Quero receber as informações
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--dark" id="projeto">
+        <div class="container">
+          <h2 class="section-title section-title--light">O projeto em poucas palavras</h2>
+          <p class="section-subtitle section-subtitle--light">
+            Seu tempo merece esse lugar — sem precisar de apartamento grande para viver bem em BC.
+          </p>
+          <div class="features-dark">
+            <div class="feature-dark">
+              <h3>Plantas</h3>
+              <p>2 dormitórios (1 suíte + 1 demi-suíte) · 60 a 62 m² · 1 vaga</p>
+            </div>
+            <div class="feature-dark">
+              <h3>Entrega</h3>
+              <p>Previsão dezembro/2028 · obra iniciada em novembro/2025</p>
+            </div>
+            <div class="feature-dark">
+              <h3>Condições agora</h3>
+              <p>Pré-lançamento: entrada facilitada · até 72 parcelas · CUB até as chaves</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="localizacao">
+        <div class="container">
+          <h2 class="section-title">Localização central — tudo perto</h2>
+          <p class="section-subtitle">Rua 1500, nº 913 — Centro · Balneário Camboriú/SC<br>
+            Entre a 3ª e a 4ª Avenida. Perto de mercados, farmácias, colégios, posto de saúde e
+            o comércio que você usa no dia a dia — importante em qualquer idade, ainda mais quando
+            quer praticidade.
+          </p>
+          <figure class="img-slot img-slot--wide" style="margin-bottom:2rem;">
+            <img src="fotos/tp-mapa.webp" alt="Mapa localização Rua 1500 Centro BC" loading="lazy" />
+          </figure>
+          <a
+            class="btn btn--outline"
+            href="https://www.google.com/maps/search/Rua+1500+913+Balneário+Camboriú"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Abrir no mapa (Google Maps)
+          </a>
+        </div>
+      </section>
+
+      <section class="section section--alt" id="depoimentos">
+        <div class="container">
+          <h2 class="section-title">O que dizem quem já pediu informações</h2>
+          <div class="testimonials-grid">
+            <blockquote class="testimonial">
+              <p>“Expliquei que não queria apartamento grande. Me mostraram plantas de 60 m² e ficou fácil de entender.”</p>
+              <footer>— Casal de Porto Alegre, 60 anos</footer>
+            </blockquote>
+            <blockquote class="testimonial">
+              <p>“Gostei de saber que farmácia e mercado ficam perto. Para segunda residência em BC, isso pesa muito.”</p>
+              <footer>— Aposentada, interior de SC</footer>
+            </blockquote>
+            <blockquote class="testimonial">
+              <p>“Recebi tabela e condições no WhatsApp no mesmo dia. Sem pressão, do jeito que eu gosto.”</p>
+              <footer>— Investidor, região Sul</footer>
+            </blockquote>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="faq">
+        <div class="container container--narrow">
+          <h2 class="section-title">Dúvidas comuns</h2>
+          <div class="faq-list">
+            <details class="faq-item">
+              <summary>O apartamento não é pequeno demais?</summary>
+              <p>As plantas foram pensadas para serem compactas e funcionais — não é “mini apartamento”, é o tamanho certo para quem não quer espaço sobrando. Você ganha em praticidade e em valor de investimento no centro de BC.</p>
+            </details>
+            <details class="faq-item">
+              <summary>Sou mais velho(a). O prédio serve para mim?</summary>
+              <p>Muitos compradores buscam exatamente isso: menos manutenção, localização central com serviços por perto, áreas de lazer no próprio prédio e apenas 17 unidades para mais tranquilidade.</p>
+            </details>
+            <details class="faq-item">
+              <summary>Como recebo preços e plantas?</summary>
+              <p>Pelo WhatsApp. Envio tabela, plantas e condições do pré-lançamento de forma personalizada, sem custo e sem obrigação de compra.</p>
+            </details>
+            <details class="faq-item">
+              <summary>O que é pré-lançamento?</summary>
+              <p>É a fase antes do lançamento oficial, com condições especiais: entrada facilitada, parcelamento em até 72 vezes e valores corrigidos pelo CUB até a entrega das chaves. Depois do lançamento, os valores costumam subir.</p>
+            </details>
+            <details class="faq-item">
+              <summary>Quantas unidades ainda há?</summary>
+              <p>O edifício terá apenas 17 unidades no total. A disponibilidade muda — confirme no WhatsApp para saber o que ainda está livre hoje.</p>
+            </details>
+            <details class="faq-item">
+              <summary>Preciso pagar para receber informações?</summary>
+              <p>Não. O primeiro contato é gratuito e sem compromisso.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="section cta-section" id="formulario">
+        <div class="container container--narrow" style="text-align:center">
+          <h2 class="section-title section-title--light">
+            Receba tabela, plantas e condições exclusivas de pré-lançamento
+          </h2>
+          <p style="color:rgba(255,255,255,0.82);max-width:38rem;margin:0 auto 1.9rem;line-height:1.8;">
+            Toque no botão, preencha um formulário rápido e eu te passo todas as informações sobre
+            a Triore, o Topazio Residence e os valores — direto no seu WhatsApp.
+          </p>
+          <button type="button" class="btn btn--whatsapp btn--lg" data-wa>
+            Quero receber pelo WhatsApp
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>
+          <strong>Topazio Residence</strong> · Triore Empreendimentos · Pré-lançamento<br />
+          Balneário Camboriú/SC<br />
+          Incorporação: Topazio Residence SPE Ltda
+        </p>
+        <p class="footer-small">
+          Material informativo. Imagens ilustrativas, disponibilidade e condições sujeitas a alteração.
+          Consulte o atendimento para informações atualizadas.
+        </p>
+      </div>
+    </footer>
+
+    <button
+      type="button"
+      class="whatsapp-float"
+      data-wa
+      aria-label="Conversar no WhatsApp"
+      title="WhatsApp"
+    >
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="currentColor">
+        <path
+          d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+        />
+      </svg>
+    </button>
+
+    <!-- ═══════════ POP-UP / MODAL DE FORMULÁRIO (único formulário da página) ═══════════ -->
+    <div class="modal-overlay" id="wa-modal" role="dialog" aria-modal="true" aria-labelledby="wa-modal-title" hidden>
+      <div class="modal-card">
+        <button type="button" class="modal-close" id="wa-modal-close" aria-label="Fechar">&times;</button>
+        <form class="lead-form" id="lead-form-modal" novalidate>
+          <h3 class="form-title" id="wa-modal-title">Receba tudo no WhatsApp</h3>
+          <p class="form-hint">
+            Preencha rapidinho. Em seguida você será direcionado ao WhatsApp com a mensagem pronta.
+          </p>
+          <label>
+            Seu nome
+            <input type="text" name="nome" required autocomplete="name" placeholder="Ex.: Maria Silva" />
+          </label>
+          <label>
+            Seu WhatsApp (com DDD)
+            <input type="tel" name="telefone" required autocomplete="tel" placeholder="(47) 99241-2160" />
+          </label>
+          <label>
+            Qual planta te interessa mais?
+            <select name="unidade" required>
+              <option value="">Escolha uma opção…</option>
+              <option value="Tipo 3 - 60 m²">Tipo 3 - 60 m²</option>
+              <option value="Tipo 2 - 61,55 m²">Tipo 2 - 61,55 m²</option>
+              <option value="Tipo 1 com terraço">Tipo 1 com terraço</option>
+              <option value="Ainda não sei">Ainda não sei — quero sua orientação</option>
+            </select>
+          </label>
+          <button type="submit" class="btn btn--gold btn--block">
+            Enviar e conversar no WhatsApp
+          </button>
+          <p class="form-legal">
+            Ao enviar, você autoriza contato sobre o Topazio Residence. Seus dados não são vendidos a terceiros.
+          </p>
+          <div class="form-success" hidden>
+            ✅ Recebido! Abrindo o WhatsApp agora…
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ═══════════ LÓGICA: pop-up + envio do lead + redirect WhatsApp ═══════════ -->
+    <script>
+    (function () {
+      var WA_NUMBER = '5547992412160';
+
+      // Token curto p/ ligar a conversa no WhatsApp à sessão da LP (uazapi grava
+      // o texto da 1ª mensagem; o token cai no message_content). Vem do cookie
+      // _krob_eid setado pelo middleware.
+      function refToken() {
+        var m = document.cookie.match(/(?:^|;\s*)_krob_eid=([^;]+)/);
+        if (!m) return '';
+        return decodeURIComponent(m[1]).replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
+      }
+
+      // --- Modal (pop-up) ---
+      var modal = document.getElementById('wa-modal');
+      var modalClose = document.getElementById('wa-modal-close');
+      var lastFocus = null;
+      function openModal() {
+        lastFocus = document.activeElement;
+        modal.hidden = false;
+        modal.classList.add('is-open');
+        document.body.classList.add('modal-open');
+        var first = modal.querySelector('input, select, button');
+        if (first) first.focus();
+      }
+      function closeModal() {
+        modal.classList.remove('is-open');
+        modal.hidden = true;
+        document.body.classList.remove('modal-open');
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+      }
+
+      // Todo CTA de WhatsApp — inclusive o botão flutuante — abre o pop-up do
+      // formulário. Ninguém vai ao WhatsApp sem antes virar um lead rastreado.
+      document.querySelectorAll('[data-wa]').forEach(function (el) {
+        el.addEventListener('click', function (e) { e.preventDefault(); openModal(); });
+      });
+      if (modalClose) modalClose.addEventListener('click', closeModal);
+      modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+      });
+
+      // --- Formulário (único, no pop-up): dispara o Lead e redireciona ---
+      function markInvalid(field, on) { if (field) field.classList.toggle('error', !!on); }
+
+      async function handleSubmit(form) {
+        var nomeEl = form.elements.nome, telEl = form.elements.telefone, uniEl = form.elements.unidade;
+        var nome = (nomeEl.value || '').trim();
+        var telefone = (telEl.value || '').trim();
+        var unidade = uniEl.value ? uniEl.options[uniEl.selectedIndex].value : '';
+
+        var ok = true;
+        markInvalid(nomeEl, !nome); if (!nome) ok = false;
+        markInvalid(telEl, !telefone); if (!telefone) ok = false;
+        markInvalid(uniEl, !unidade); if (!unidade) ok = false;
+        if (!ok) { (nome ? (telefone ? uniEl : telEl) : nomeEl).focus(); return; }
+
+        var btn = form.querySelector('button[type="submit"]');
+        var successEl = form.querySelector('.form-success');
+        if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+
+        var nameParts = nome.split(/\s+/);
+        var fn = nameParts[0] || '';
+        var ln = nameParts.slice(1).join(' ') || '';
+
+        var eventId = (crypto.randomUUID && crypto.randomUUID()) ||
+          (Date.now() + '-' + Math.random().toString(36).slice(2));
+        var eventTime = Math.floor(Date.now() / 1000);
+
+        try { if (window.fbq) fbq('track', 'Lead', {}, { eventID: eventId }); } catch (e) {}
+
+        // /tracker faz o hash do PII e dispara o Meta CAPI server-side (autoritativo).
+        // keepalive garante a entrega mesmo com a navegação logo em seguida.
+        var sent = fetch('/tracker', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          keepalive: true,
+          body: JSON.stringify({
+            event_name: 'Lead',
+            event_id: eventId,
+            event_time: eventTime,
+            event_source_url: window.location.href,
+            user_data: { fn: fn, ln: ln, ph: telefone },
+          }),
+        }).catch(function () {});
+
+        if (successEl) successEl.hidden = false;
+
+        var ref = refToken();
+        var msg =
+          'Olá! Acabei de preencher o formulário no site do Topazio Residence.\n\n' +
+          '*Nome:* ' + nome + '\n' +
+          '*WhatsApp:* ' + telefone +
+          (unidade ? '\n*Planta de interesse:* ' + unidade : '') +
+          (ref ? '\n\n#' + ref : '');
+        var dest = 'https://api.whatsapp.com/send/?phone=' + WA_NUMBER + '&text=' + encodeURIComponent(msg);
+        // Espera o /tracker até ~600ms (keepalive cobre o resto) e segue pro WhatsApp.
+        await Promise.race([sent, new Promise(function (r) { setTimeout(r, 600); })]);
+        window.location.href = dest;
+      }
+
+      var form = document.getElementById('lead-form-modal');
+      if (form) {
+        form.addEventListener('submit', function (e) { e.preventDefault(); handleSubmit(form); });
+      }
+    })();
+    </script>
+  </body>
+</html>
