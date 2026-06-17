@@ -5,62 +5,61 @@ URL: `/dashboard/`
 ## Brief
 
 - **Purpose:** Painel interno de resultados da **TRIORE · Topázio** — leads do
-  formulário da LP (Meta Ads) com atribuição UTM + estrutura de WhatsApp/comercial
-  (lista de leads + marcação manual de **Qualificado**). Página administrativa, não é
-  landing page. **Sem Google Ads.**
-- **Audience:** gestor de tráfego + atendente do comercial (uso interno).
+  formulário da LP (Meta Ads) com atribuição UTM e medição de desistência
+  (abriram o formulário × enviaram). Página administrativa, não é landing page.
+  **Sem Google Ads, sem uazapi, sem QualifiedLead/Purchase.**
+- **Audience:** gestor de tráfego (uso interno).
 - **Auth:** `?key=<DASH_KEY>` na URL ou `sessionStorage.dashKey`.
-- **Integrations:** lê via `GET /api/leads` (único endpoint, auth por DASH_KEY) e grava
-  via `POST /api/fire-qualified-lead-web`. Nenhum pixel/tracker dispara aqui.
+- **Integrations:** lê via `GET /api/leads` (único endpoint, auth por DASH_KEY).
+  Não grava nada (sem disparos manuais).
 
-## Funil (modelo desta LP — com formulário)
+## Funil
 
-- **Meta Ads → LP `/topazio` → pop-up de formulário → WhatsApp.** Todo CTA de WhatsApp
-  (inclusive o botão flutuante) abre o **mesmo formulário em pop-up** — é o único
-  formulário da página. O envio dispara o evento `Lead` (pixel + CAPI website via
-  `/tracker`) e então redireciona ao WhatsApp (texto com token `#ref`).
-  UTMs/fbclid/fbp/`_krob_eid` são capturados na sessão pelo middleware.
-- **Qualificado é MANUAL:** a atendente marca na lista. Ao marcar, dispara
-  `QualifiedLead` (Meta CAPI, action_source `website`) atribuído pelo `fbp/fbc/external_id`
-  da sessão de origem do lead — ver `functions/api/fire-qualified-lead-web.js`.
-- Acompanhamento da conversa em si acontece no WhatsApp (uazapi). O texto pré-preenchido
-  do `wa.me` carrega um token `#xxxxxxxx` (primeiros 8 chars do `_krob_eid`) que o webhook
-  do uazapi grava em `message_content` — base para ligar a conversa ao lead no futuro.
+- **Meta Ads → LP `/topazio` → pop-up de formulário → WhatsApp.** Todo CTA de
+  WhatsApp (inclusive o flutuante) abre o **mesmo formulário em pop-up** — único
+  formulário da página.
+- **Dois eventos** chegam ao `event_log` via `/tracker`:
+  - `FormOpen` — disparado ao abrir o pop-up (clicou no WhatsApp). Mede intenção.
+  - `Lead` — disparado ao enviar o formulário (com nome/telefone hasheados p/ Meta).
+  - **Desistência = FormOpen − Lead.** Todo lead enviado já é considerado
+    qualificado (preencheu o formulário), por isso não há marcação manual.
+- UTMs/fbclid/fbp são capturados na sessão pelo middleware e ligados ao lead.
 
 ## Abas / seções
 
-- **Resultados:** Leads, Leads qualificados, Taxa de qualificação, % móvel; gráfico de
-  leads por dia; tabela de leads por origem (UTM).
-- **WhatsApp / Comercial:** funil (leads / qualificados / taxa) + lista de leads com botão
-  **Qualificar** (confirmação → dispara QualifiedLead). Filtro Todos/Novos/Qualificados.
-- **Atribuição (UTM):** resumo por origem + tabela lead a lead (fonte/mídia, campanha,
-  conteúdo/termo, status). Origens canônicas (sem Google): `meta-ads`, `instagram-bio`,
-  `tiktok-bio`, `remarketing`, `indicacao`, orgânico/direto (sem UTM).
+- **Resultados:** KPIs (Leads, Formulários abertos, Taxa de conclusão = enviados ÷
+  abertos, % móvel) + nota de desistências; gráfico de leads por dia; tabela de
+  leads por origem (UTM).
+- **Leads:** resumo (Leads, Abertos, Desistências) + tabela lead a lead
+  (lead, origem, fonte/mídia, campanha, conteúdo/termo, quando) com filtro por origem.
 
 ## Notes
 
-- Arquivo único auto-contido (`index.html`); sem build. Tailwind CDN + Chart.js. **Tema
-  claro/escuro** (toggle, `localStorage`). **Paleta TRIORE** (azul-marinho `--primary
-  #1B2A4A` + dourado `--accent #B8924A`/`--secondary #D4AD6E`), logo `logo-triore.webp`
-  (hexágono, copiado de `topazio/fotos/`), fontes Libre Baskerville / Lato.
-- **Toda a UI é alimentada por um único fetch** a `/api/leads?key=&days=&limit=500`. KPIs,
-  gráfico (bucket por dia no cliente), origens e atribuição são calculados no front a partir
-  dessa lista — sem depender de endpoints que não existem neste repo.
-- **Janela móvel:** presets Hoje/7/14/30/90 dias (o `/api/leads` filtra por `days`
-  trailing; não há range de data arbitrário).
-- A lista de leads mostra e-mail (se coletado), dispositivo, origem, campanha, quando e
-  status. O formulário do Topázio coleta nome/telefone (hasheados para o Meta, não
-  persistidos em claro) — o contato real é feito pelo WhatsApp.
+- Arquivo único auto-contido (`index.html`); sem build. Tailwind CDN + Chart.js.
+  **Tema claro/escuro** (toggle, `localStorage`). **Paleta TRIORE** (azul-marinho
+  `--primary #1B2A4A` + dourado `--accent #B8924A`), logo `logo-triore.webp`
+  (copiado de `topazio/fotos/`), fontes Libre Baskerville / Lato.
+- **Toda a UI vem de um único fetch** a `/api/leads?key=&days=&limit=500`. KPIs,
+  gráfico (bucket por dia no cliente), origens e a tabela lead a lead são
+  calculados no front a partir da lista + do campo `form_opens` do retorno.
+- **Janela móvel:** presets Hoje/7/14/30/90 dias (`/api/leads` filtra por `days`
+  trailing; sem range de data arbitrário).
+- Origens canônicas (sem Google), classificadas pelo `utm_source`: `meta-ads`,
+  `instagram-bio`, `tiktok-bio`, `remarketing`, `indicacao`, orgânico/direto (sem UTM).
+- A lista mostra e-mail (se coletado), dispositivo, origem, campanha, quando. O
+  formulário do Topázio coleta nome/telefone (hasheados p/ Meta, não persistidos
+  em claro); o contato real acontece no WhatsApp.
 
 ## Endpoints e tabelas
 
-- Leitura: `functions/api/leads.js` (event_log `Lead` LEFT JOIN sessions; retorna UTMs +
-  `qualified_lead_status`). Escrita: `functions/api/fire-qualified-lead-web.js`
-  (QualifiedLead website-CAPI por `META_PIXEL_ID`/`META_ACCESS_TOKEN`).
-- Tabelas: `event_log` (+ colunas `qualified_lead_*` da migration `0016`), `sessions`.
+- Leitura: `functions/api/leads.js` (event_log `Lead` LEFT JOIN sessions; retorna
+  UTMs + `form_opens` = contagem de eventos `FormOpen` no período). Tabelas:
+  `event_log`, `sessions`.
 
 ## Change log
 
-- 2026-06-15 — adaptado do design Renan Naves para TRIORE/Topázio: removido Google Ads,
-  logo TRIORE, paleta azul+dourado, religado ao backend real (`/api/leads` +
-  `/api/fire-qualified-lead-web`), comercial só com **Qualificado**.
+- 2026-06-15 — adaptado do design Renan Naves para TRIORE/Topázio (sem Google Ads,
+  logo TRIORE, paleta azul+dourado, religado a `/api/leads`).
+- 2026-06-16 — removido uazapi/QualifiedLead/Purchase (todo lead do formulário já é
+  qualificado); adicionada medição de desistência via evento `FormOpen` (abertos ×
+  enviados); simplificado para 2 abas (Resultados, Leads).

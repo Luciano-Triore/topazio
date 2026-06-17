@@ -30,8 +30,6 @@ export async function onRequestGet(context) {
         e.timestamp,
         e.session_id,
         e.raw_email,
-        e.qualified_lead_status,
-        e.qualified_lead_sent_at,
         e.browser,
         e.os,
         e.is_mobile,
@@ -80,10 +78,21 @@ export async function onRequestGet(context) {
       ORDER BY count DESC
     `).bind(since).all();
 
+    // Quantos abriram o formulário (pop-up) no período — base para a taxa de
+    // desistência: quem abriu (FormOpen) mas não enviou (Lead). Disparado pela LP.
+    const formOpens = await env.DB.prepare(`
+      SELECT COUNT(*) as n
+      FROM event_log
+      WHERE event_name = 'FormOpen'
+        AND timestamp >= ?
+        AND is_bot = 0
+    `).bind(since).first();
+
     return json({
       days,
       leads: rows.results || [],
       summary: summary.results || [],
+      form_opens: formOpens?.n ?? 0,
     });
   } catch (err) {
     return json({ error: err.message }, 500);

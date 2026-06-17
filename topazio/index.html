@@ -38,7 +38,7 @@
     -->
     <script>
       // ÚNICO valor a editar: o ID numérico do Meta Pixel do Topázio.
-      var META_PIXEL_ID = 'YOUR_META_PIXEL_ID';
+      var META_PIXEL_ID = '1806281186721506';
 
       (function () {
         var pvEventId = (crypto.randomUUID && crypto.randomUUID()) ||
@@ -74,11 +74,6 @@
     </script>
   </head>
   <body data-landing-variant="principal">
-    <div class="urgency-bar" role="status">
-      <span class="urgency-dot" aria-hidden="true"></span>
-      Lançamento - Em obras — <em>Últimas 3 unidades</em> no centro de Balneário Camboriú
-    </div>
-
     <header class="site-header">
       <div class="container header-inner">
         <a class="logo-lockup" href="#topo" aria-label="Topazio Residence — Triore">
@@ -133,25 +128,27 @@
         </div>
       </section>
 
+      <div class="urgency-bar" role="status">
+        <span class="urgency-dot" aria-hidden="true"></span>
+        Lançamento - Em obras — <em>Últimas 3 unidades</em> no centro de Balneário Camboriú
+      </div>
+
     <!-- ═══════════ GALERIA DE IMAGENS — FACHADA ═══════════ -->
     <section class="section section--alt" aria-label="Imagens do empreendimento">
       <div class="container">
         <h2 class="section-title">Conheça o empreendimento</h2>
         <p class="section-subtitle">Fachada, áreas comuns e entorno — imagens reais do projeto</p>
 
-        <div class="img-gallery img-gallery--main" style="margin-bottom:1rem;">
-          <figure class="img-slot img-slot--hero img-slot--span2">
+        <div class="img-gallery img-gallery--3">
+          <figure class="img-slot img-slot--square">
             <img src="fotos/fachada.webp" alt="Fachada principal Edifício Topázio" loading="lazy" />
           </figure>
-          <figure class="img-slot img-slot--medium">
+          <figure class="img-slot img-slot--square">
             <img src="fotos/lp-academia.webp" alt="Academia do Topázio" loading="lazy" />
           </figure>
-          <figure class="img-slot img-slot--medium">
+          <figure class="img-slot img-slot--square">
             <img src="fotos/lp-coworking.webp" alt="Coworking do Topázio" loading="lazy" />
           </figure>
-        </div>
-
-        <div class="img-gallery img-gallery--3">
           <figure class="img-slot img-slot--square">
             <img src="fotos/lp-play.webp" alt="Playground" loading="lazy" />
           </figure>
@@ -500,13 +497,24 @@
     (function () {
       var WA_NUMBER = '5547992412160';
 
-      // Token curto p/ ligar a conversa no WhatsApp à sessão da LP (uazapi grava
-      // o texto da 1ª mensagem; o token cai no message_content). Vem do cookie
-      // _krob_eid setado pelo middleware.
-      function refToken() {
-        var m = document.cookie.match(/(?:^|;\s*)_krob_eid=([^;]+)/);
-        if (!m) return '';
-        return decodeURIComponent(m[1]).replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
+      // Evento "FormOpen": disparado quando alguém abre o pop-up do formulário
+      // (clicou em um CTA de WhatsApp). Comparado ao evento Lead (envio), permite
+      // medir quantos abriram e desistiram. Dispara só uma vez por carregamento.
+      var formOpenFired = false;
+      function fireFormOpen() {
+        if (formOpenFired) return;
+        formOpenFired = true;
+        var id = (crypto.randomUUID && crypto.randomUUID()) ||
+          (Date.now() + '-' + Math.random().toString(36).slice(2));
+        try { if (window.fbq) fbq('trackCustom', 'FormOpen', {}, { eventID: id }); } catch (e) {}
+        fetch('/tracker', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+          body: JSON.stringify({
+            event_name: 'FormOpen', event_id: id,
+            event_time: Math.floor(Date.now() / 1000),
+            event_source_url: window.location.href, user_data: {},
+          }),
+        }).catch(function () {});
       }
 
       // --- Modal (pop-up) ---
@@ -520,6 +528,7 @@
         document.body.classList.add('modal-open');
         var first = modal.querySelector('input, select, button');
         if (first) first.focus();
+        fireFormOpen();
       }
       function closeModal() {
         modal.classList.remove('is-open');
@@ -585,13 +594,11 @@
 
         if (successEl) successEl.hidden = false;
 
-        var ref = refToken();
         var msg =
           'Olá! Acabei de preencher o formulário no site do Topazio Residence.\n\n' +
           '*Nome:* ' + nome + '\n' +
           '*WhatsApp:* ' + telefone +
-          (unidade ? '\n*Planta de interesse:* ' + unidade : '') +
-          (ref ? '\n\n#' + ref : '');
+          (unidade ? '\n*Planta de interesse:* ' + unidade : '');
         var dest = 'https://api.whatsapp.com/send/?phone=' + WA_NUMBER + '&text=' + encodeURIComponent(msg);
         // Espera o /tracker até ~600ms (keepalive cobre o resto) e segue pro WhatsApp.
         await Promise.race([sent, new Promise(function (r) { setTimeout(r, 600); })]);

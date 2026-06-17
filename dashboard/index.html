@@ -66,8 +66,6 @@
   .btn-primary{ background:var(--accent); color:#fff; border:1px solid var(--accent); } .btn-primary:hover{opacity:.92;}
   [data-theme="dark"] .btn-primary{ color:#0b1120; }
   .btn-ghost{ background:var(--card); color:var(--text); border:1px solid var(--border); } .btn-ghost:hover{ background:var(--card-2); }
-  .btn-sm{ font-size:.72rem; padding:.3rem .6rem; border-radius:8px; font-weight:700; cursor:pointer; border:1px solid var(--border); background:var(--card); color:var(--text);}
-  .btn-sm:hover{ background:var(--card-2);}
   .date-input { font-size:.8125rem; padding:.36rem .55rem; border:1px solid var(--border); border-radius:9px; background:var(--card); color:var(--text); }
   .icon-btn{ width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--text);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
   .icon-btn:hover{ background:var(--card-2);}
@@ -89,7 +87,6 @@
   @keyframes fadeIn{ from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:translateY(0)} }
   .is-loading .kpi-value{ color:var(--muted)!important; }
   .notice{ display:flex; gap:.6rem; align-items:flex-start; background:color-mix(in srgb,var(--accent) 12%,var(--card)); border:1px solid color-mix(in srgb,var(--accent) 35%,transparent); color:var(--text); border-radius:12px; padding:.8rem 1rem; font-size:.82rem; }
-  .modal-bg{ position:fixed; inset:0; background:rgba(11,17,32,.55); backdrop-filter:blur(2px); z-index:70; display:flex; align-items:center; justify-content:center; padding:1rem; }
   .hidden{ display:none!important; }
 </style>
 </head>
@@ -122,7 +119,7 @@
         <div class="hidden sm:block" style="border-left:1px solid var(--border);height:30px"></div>
         <div class="hidden sm:block">
           <div class="font-semibold head leading-tight">Painel de Resultados</div>
-          <div class="text-xs" style="color:var(--muted)">TRIORE · Topázio — Meta Ads · WhatsApp</div>
+          <div class="text-xs" style="color:var(--muted)">TRIORE · Topázio — Meta Ads</div>
         </div>
       </div>
       <div class="flex items-center gap-2">
@@ -136,15 +133,14 @@
     <div class="max-w-6xl mx-auto px-5">
       <nav class="flex gap-5">
         <div class="tab-btn active" data-tab="resultados">Resultados</div>
-        <div class="tab-btn" data-tab="whatsapp">WhatsApp / Comercial</div>
-        <div class="tab-btn" data-tab="atribuicao">Atribuição (UTM)</div>
+        <div class="tab-btn" data-tab="leads">Leads</div>
       </nav>
     </div>
   </header>
 
   <main class="max-w-6xl mx-auto px-5 py-6 space-y-7">
 
-    <!-- date range (janela móvel) -->
+    <!-- janela móvel -->
     <section class="fade-in flex flex-wrap items-end gap-x-4 gap-y-3">
       <div class="seg" id="presets">
         <div class="seg-btn" data-preset="1">Hoje</div>
@@ -163,20 +159,20 @@
       <section>
         <div class="section-label mb-2.5">Visão geral</div>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 stagger">
-          <div class="card kpi"><div class="kpi-rule"></div>
+          <div class="card kpi kpi-hero">
             <div class="kpi-label">Leads</div>
             <div class="kpi-value mono" id="k-leads">—</div>
             <div class="kpi-sub">Formulários enviados no período</div>
           </div>
-          <div class="card kpi kpi-hero">
-            <div class="kpi-label">Leads qualificados</div>
-            <div class="kpi-value mono" id="k-qualified">—</div>
-            <div class="kpi-sub">Marcados pelo comercial</div>
+          <div class="card kpi"><div class="kpi-rule"></div>
+            <div class="kpi-label">Formulários abertos</div>
+            <div class="kpi-value mono" id="k-opens">—</div>
+            <div class="kpi-sub">Clicaram no WhatsApp / abriram o pop-up</div>
           </div>
           <div class="card kpi"><div class="kpi-rule" style="background:var(--secondary)"></div>
-            <div class="kpi-label">Taxa de qualificação</div>
-            <div class="kpi-value mono" id="k-qrate" style="color:var(--accent)">—</div>
-            <div class="kpi-sub">Qualificados ÷ leads</div>
+            <div class="kpi-label">Taxa de conclusão</div>
+            <div class="kpi-value mono" id="k-conv" style="color:var(--accent)">—</div>
+            <div class="kpi-sub">Enviados ÷ abertos</div>
           </div>
           <div class="card kpi"><div class="kpi-rule"></div>
             <div class="kpi-label">Em dispositivo móvel</div>
@@ -184,9 +180,17 @@
             <div class="kpi-sub">% dos leads no celular</div>
           </div>
         </div>
+        <div class="notice mt-3">
+          <span>
+            <strong>Desistências.</strong> Quem clica num botão de WhatsApp abre o formulário em
+            pop-up (evento <em>FormOpen</em>); ao enviar, vira <em>Lead</em>. A diferença entre
+            <em>abertos</em> e <em>enviados</em> são as desistências —
+            <strong id="k-dropoff">—</strong> no período.
+          </span>
+        </div>
       </section>
 
-      <!-- daily chart -->
+      <!-- gráfico diário -->
       <section class="card p-5 fade-in mt-7">
         <div class="mb-4">
           <div class="section-label">Performance diária</div>
@@ -203,127 +207,60 @@
         </div>
         <div class="overflow-x-auto -mx-1">
           <table>
-            <thead><tr><th>Origem</th><th>Leads</th><th>Qualificados</th><th>% do total</th></tr></thead>
-            <tbody id="rows-origins"><tr><td colspan="4" class="text-center" style="color:var(--muted)">Carregando…</td></tr></tbody>
+            <thead><tr><th>Origem</th><th>Leads</th><th>% do total</th></tr></thead>
+            <tbody id="rows-origins"><tr><td colspan="3" class="text-center" style="color:var(--muted)">Carregando…</td></tr></tbody>
           </table>
         </div>
       </section>
     </div>
 
-    <!-- ======================= TAB: WHATSAPP / COMERCIAL ======================= -->
-    <div id="tab-whatsapp" class="hidden">
+    <!-- ======================= TAB: LEADS ======================= -->
+    <div id="tab-leads" class="hidden">
       <section>
-        <div class="section-label mb-2.5">Funil comercial</div>
-        <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 stagger">
+        <div class="section-label mb-2.5">Resumo</div>
+        <div class="grid grid-cols-3 gap-3 stagger">
           <div class="card kpi"><div class="kpi-rule"></div>
             <div class="kpi-label">Leads</div>
-            <div class="kpi-value mono" id="f-leads">—</div>
-            <div class="kpi-sub">Formulários no período</div>
-          </div>
-          <div class="card kpi kpi-hero">
-            <div class="kpi-label">Leads qualificados</div>
-            <div class="kpi-value mono" id="f-qualified">—</div>
-            <div class="kpi-sub">QualifiedLead disparado</div>
+            <div class="kpi-value mono" id="l-leads">—</div>
+            <div class="kpi-sub">Formulários enviados</div>
           </div>
           <div class="card kpi"><div class="kpi-rule" style="background:var(--secondary)"></div>
-            <div class="kpi-label">Taxa de qualificação</div>
-            <div class="kpi-value mono" id="f-qrate" style="color:var(--accent)">—</div>
-            <div class="kpi-sub">Qualificados ÷ leads</div>
+            <div class="kpi-label">Formulários abertos</div>
+            <div class="kpi-value mono" id="l-opens">—</div>
+            <div class="kpi-sub">Abriram o pop-up</div>
           </div>
-        </div>
-        <div class="notice mt-3">
-          <span>
-            <strong>Qualificação é manual.</strong> O lead vem do formulário da LP (e segue para o WhatsApp).
-            Quando a conversa for um lead realmente qualificado, clique em <em>Qualificar</em> — é enviado o
-            evento <strong>QualifiedLead</strong> ao Meta (CAPI), atribuído pelo <code>fbp/fbc</code> da sessão
-            de origem. A conversa em si é acompanhada no WhatsApp (uazapi).
-          </span>
+          <div class="card kpi"><div class="kpi-rule" style="background:var(--red)"></div>
+            <div class="kpi-label">Desistências</div>
+            <div class="kpi-value mono" id="l-drop" style="color:var(--red)">—</div>
+            <div class="kpi-sub">Abriram e não enviaram</div>
+          </div>
         </div>
       </section>
 
-      <!-- inbox -->
       <section class="card p-5 fade-in mt-6">
         <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-          <div class="font-semibold head">Lista de leads (formulário → WhatsApp)</div>
-          <div class="seg" id="inbox-filter">
-            <div class="seg-btn active" data-status="">Todos</div>
-            <div class="seg-btn" data-status="new">Novos</div>
-            <div class="seg-btn" data-status="qualified">Qualificados</div>
-          </div>
-        </div>
-        <div class="overflow-x-auto -mx-1">
-          <table>
-            <thead><tr><th>Lead</th><th>Origem</th><th>Campanha</th><th>Quando</th><th>Status</th><th>Ação</th></tr></thead>
-            <tbody id="rows-inbox"><tr><td colspan="6" class="text-center" style="color:var(--muted)">Carregando…</td></tr></tbody>
-          </table>
-        </div>
-        <div id="inbox-empty" class="hidden text-sm mt-4 p-4 rounded-xl" style="background:var(--card-2);color:var(--dim)">
-          Nenhum lead no período. A lista é preenchida quando alguém envia o formulário da LP
-          (evento <code>Lead</code> via <code>/tracker</code>).
-        </div>
-      </section>
-    </div>
-
-    <!-- ======================= TAB: ATRIBUIÇÃO (UTM) ======================= -->
-    <div id="tab-atribuicao" class="hidden">
-      <details class="card p-4 fade-in mb-5">
-        <summary class="cursor-pointer font-semibold head text-sm">Padrão de UTMs por origem (clique para ver)</summary>
-        <div class="grid sm:grid-cols-2 gap-x-6 gap-y-1 mt-3 text-xs" style="color:var(--dim)">
-          <div>• <strong>Meta Ads</strong> — <code>utm_source=meta-ads</code> (campanhas do Instagram/Facebook)</div>
-          <div>• <strong>Instagram Bio</strong> — <code>utm_source=instagram-bio</code> (link da bio → LP)</div>
-          <div>• <strong>TikTok Bio</strong> — <code>utm_source=tiktok-bio</code> (link da bio → LP)</div>
-          <div>• <strong>Orgânico / Direto</strong> — sem UTM (referrer de busca ou acesso direto)</div>
-          <div>• <strong>Indicação</strong> — sem UTM · campanha avulsa</div>
-          <div>• <strong>Remarketing</strong> — <code>utm_source=remarketing</code></div>
-        </div>
-      </details>
-
-      <section class="mb-6">
-        <div class="section-label mb-2.5">Resumo por origem</div>
-        <div class="card overflow-x-auto">
-          <table>
-            <thead><tr><th>Origem</th><th>Leads</th><th>Qualificados</th><th>% do total</th></tr></thead>
-            <tbody id="rows-origins-attr"><tr><td colspan="4" class="text-center" style="color:var(--muted)">Carregando…</td></tr></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="card p-5 fade-in">
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-          <div class="font-semibold head">Leads por UTM <span style="color:var(--muted)">(lead a lead)</span></div>
+          <div class="font-semibold head">Leads (lead a lead) <span style="color:var(--muted)">· conectado à origem</span></div>
           <select id="origin-filter" class="date-input">
             <option value="">Todas as origens</option>
           </select>
         </div>
         <div class="overflow-x-auto -mx-1">
           <table>
-            <thead><tr><th>Quando</th><th>Origem</th><th>Fonte / Mídia</th><th>Campanha</th><th>Conteúdo / Termo</th><th>Status</th></tr></thead>
-            <tbody id="rows-attr"><tr><td colspan="6" class="text-center" style="color:var(--muted)">Carregando…</td></tr></tbody>
+            <thead><tr><th>Lead</th><th>Origem</th><th>Fonte / Mídia</th><th>Campanha</th><th>Conteúdo / Termo</th><th>Quando</th></tr></thead>
+            <tbody id="rows-leads"><tr><td colspan="6" class="text-center" style="color:var(--muted)">Carregando…</td></tr></tbody>
           </table>
         </div>
-        <div id="attr-empty" class="hidden text-sm mt-4 p-4 rounded-xl" style="background:var(--card-2);color:var(--dim)">
-          Nenhum lead no período.
+        <div id="leads-empty" class="hidden text-sm mt-4 p-4 rounded-xl" style="background:var(--card-2);color:var(--dim)">
+          Nenhum lead no período. A lista é preenchida quando alguém envia o formulário da LP
+          (evento <code>Lead</code> via <code>/tracker</code>).
         </div>
       </section>
     </div>
 
     <footer class="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs pb-6" style="color:var(--muted)">
-      <span>Fonte: <code>/api/leads</code> · evento <code>Lead</code> (event_log) + sessão (UTMs)</span>
+      <span>Fonte: <code>/api/leads</code> · evento <code>Lead</code> (event_log) + sessão (UTMs) · abertos = <code>FormOpen</code></span>
     </footer>
   </main>
-</div>
-
-<!-- ============================ CONFIRM MODAL ============================ -->
-<div id="modal" class="modal-bg hidden">
-  <div class="card w-full max-w-md p-6 fade-in">
-    <div class="font-semibold head text-lg mb-1" id="modal-title">Confirmar</div>
-    <div class="text-sm mb-4" style="color:var(--dim)" id="modal-text"></div>
-    <div id="modal-error" class="hidden text-xs mb-3" style="color:var(--red)"></div>
-    <div class="flex justify-end gap-2">
-      <button id="modal-cancel" class="btn btn-ghost">Cancelar</button>
-      <button id="modal-ok" class="btn btn-primary">Confirmar</button>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -331,12 +268,11 @@
   'use strict';
 
   // Único endpoint que o painel precisa (auth por DASH_KEY): leads do formulário
-  // com UTMs + status de qualificação. A marcação de qualificado dispara o
-  // QualifiedLead website-CAPI por /api/fire-qualified-lead-web.
-  var LEADS = '/api/leads', QUALIFY = '/api/fire-qualified-lead-web';
-  var KEY = '', chart = null, tab = 'resultados', inboxStatus = '', attrFilter = '';
+  // com UTMs + contagem de formulários abertos (FormOpen). Sem disparos/escrita.
+  var LEADS = '/api/leads';
+  var KEY = '', chart = null, tab = 'resultados', attrFilter = '';
   var state = { days: 7 };
-  var allLeads = [], summaryReady = false, originFilterBuilt = false;
+  var allLeads = [], formOpens = 0, originFilterBuilt = false;
 
   // Origens canônicas (sem Google). Classificação derivada do utm_source.
   var ORIGINS = [
@@ -359,10 +295,9 @@
     return shortDate(d)+' '+pad(d.getHours())+':'+pad(d.getMinutes());
   }
 
-  // Classifica a origem a partir do utm_source da sessão.
   function classify(l){
     var s=(l.utm_source||'').toLowerCase().trim();
-    if(!s) return (l.referrer ? 'organico' : 'organico');
+    if(!s) return 'organico';
     if(s.indexOf('meta')>=0 || s.indexOf('facebook')>=0 || s==='ig' || s.indexOf('instagram-ad')>=0 || s==='fb') return 'meta-ads';
     if(s.indexOf('instagram')>=0) return 'instagram-bio';
     if(s.indexOf('tiktok')>=0) return 'tiktok-bio';
@@ -372,7 +307,6 @@
     return 'outro';
   }
   function originPillClass(o){ if(o==='meta-ads') return 'pill-meta'; if(o==='indicacao'||o==='remarketing') return 'pill-green'; if(o==='organico') return 'pill-muted'; return 'pill-gold'; }
-  function isQualified(l){ return l.qualified_lead_status==='sent'; }
 
   // -------- theme --------
   function applyTheme(t){ document.documentElement.setAttribute('data-theme',t);
@@ -405,6 +339,7 @@
       if(d.error){ showNotice(d.error); return; }
       hideNotice();
       allLeads = (d.leads||[]).map(function(l){ l._origin=classify(l); return l; });
+      formOpens = Number(d.form_opens||0);
       $('range-label').textContent = 'Últimos '+state.days+' dia(s) · '+int(allLeads.length)+' lead(s)';
       renderAll();
     }).catch(function(e){ if(e==='auth') return; barDone(); $('app').classList.remove('is-loading'); showNotice('Falha ao carregar: '+(e.message||e)); });
@@ -414,18 +349,21 @@
   function hideNotice(){ $('notice').classList.add('hidden'); }
 
   // -------- render --------
-  function renderAll(){ renderKpis(); renderChart(); renderOrigins(); renderInbox(); buildOriginFilter(); renderAttr(); }
+  function renderAll(){ renderKpis(); renderChart(); renderOrigins(); buildOriginFilter(); renderLeads(); }
 
   function renderKpis(){
-    var total=allLeads.length, qual=allLeads.filter(isQualified).length;
+    var total=allLeads.length;
     var mob=allLeads.filter(function(l){ return l.is_mobile; }).length;
+    var opens=Math.max(formOpens, total); // abertos nunca menor que enviados
+    var drop=Math.max(opens-total, 0);
     $('k-leads').textContent=int(total);
-    $('k-qualified').textContent=int(qual);
-    $('k-qrate').textContent= total? pct(qual/total*100):'—';
+    $('k-opens').textContent=int(opens);
+    $('k-conv').textContent= opens? pct(total/opens*100):'—';
     $('k-mobile').textContent= total? pct(mob/total*100):'—';
-    $('f-leads').textContent=int(total);
-    $('f-qualified').textContent=int(qual);
-    $('f-qrate').textContent= total? pct(qual/total*100):'—';
+    $('k-dropoff').textContent= int(drop)+' desistência(s)';
+    $('l-leads').textContent=int(total);
+    $('l-opens').textContent=int(opens);
+    $('l-drop').textContent=int(drop);
   }
 
   function dailyBuckets(){
@@ -454,81 +392,37 @@
   }
 
   function aggregateOrigins(){
-    var by={}; allLeads.forEach(function(l){ var o=l._origin; if(!by[o]) by[o]={leads:0,qualified:0}; by[o].leads++; if(isQualified(l)) by[o].qualified++; });
-    return Object.keys(by).map(function(o){ return { origin:o, label:ORIGIN_LABEL[o]||o, leads:by[o].leads, qualified:by[o].qualified }; })
+    var by={}; allLeads.forEach(function(l){ var o=l._origin; by[o]=(by[o]||0)+1; });
+    return Object.keys(by).map(function(o){ return { origin:o, label:ORIGIN_LABEL[o]||o, leads:by[o] }; })
       .sort(function(a,b){ return b.leads-a.leads; });
   }
-  function originsTableHtml(){
-    var list=aggregateOrigins(), total=allLeads.length;
-    if(!list.length) return '<tr><td colspan="4" class="text-center" style="color:var(--muted)">Sem dados no período.</td></tr>';
-    return list.map(function(o){
+  function renderOrigins(){
+    var list=aggregateOrigins(), total=allLeads.length, tb=$('rows-origins');
+    if(!list.length){ tb.innerHTML='<tr><td colspan="3" class="text-center" style="color:var(--muted)">Sem dados no período.</td></tr>'; return; }
+    tb.innerHTML=list.map(function(o){
       return '<tr><td><span class="pill '+originPillClass(o.origin)+'">'+esc(o.label)+'</span></td>'+
-        '<td class="mono">'+int(o.leads)+'</td><td class="mono">'+int(o.qualified)+'</td>'+
+        '<td class="mono">'+int(o.leads)+'</td>'+
         '<td class="mono">'+(total?pct(o.leads/total*100):'—')+'</td></tr>';
     }).join('');
   }
-  function renderOrigins(){ $('rows-origins').innerHTML=originsTableHtml(); $('rows-origins-attr').innerHTML=originsTableHtml(); }
 
-  // -------- inbox (comercial) --------
-  function statusPill(l){ return isQualified(l) ? '<span class="pill pill-green">Qualificado</span>' : '<span class="pill pill-muted">Novo</span>'; }
-  function leadLabel(l){ return l.raw_email ? esc(l.raw_email) : ('Lead '+esc(String(l.event_id||'').slice(0,8))); }
-  function renderInbox(){
-    var tb=$('rows-inbox'), empty=$('inbox-empty');
-    var rows=allLeads.filter(function(l){ if(inboxStatus==='qualified') return isQualified(l); if(inboxStatus==='new') return !isQualified(l); return true; });
-    if(!allLeads.length){ tb.innerHTML=''; empty.classList.remove('hidden'); return; }
-    empty.classList.add('hidden');
-    if(!rows.length){ tb.innerHTML='<tr><td colspan="6" class="text-center" style="color:var(--muted)">Nenhum lead neste filtro.</td></tr>'; return; }
-    tb.innerHTML=rows.map(function(l){
-      var device='<div class="text-xs mono" style="color:var(--muted)">'+esc(l.os||'')+(l.is_mobile?' · móvel':'')+'</div>';
-      var contact='<div>'+leadLabel(l)+'</div>'+device;
-      var origin='<span class="pill '+originPillClass(l._origin)+'">'+esc(ORIGIN_LABEL[l._origin]||l._origin)+'</span>';
-      var camp=esc(l.utm_campaign||l.utm_content||'—');
-      var q=isQualified(l);
-      var action='<button class="btn-sm" data-id="'+esc(l.event_id)+'" '+(q?'disabled style="opacity:.5"':'')+'>'+(q?'Qualificado':'Qualificar')+'</button>';
-      return '<tr><td>'+contact+'</td><td>'+origin+'</td><td>'+camp+'</td><td class="text-xs">'+whenLabel(l.timestamp)+'</td><td>'+statusPill(l)+'</td><td style="white-space:nowrap">'+action+'</td></tr>';
-    }).join('');
-    tb.querySelectorAll('button[data-id]').forEach(function(b){ if(b.disabled) return;
-      b.addEventListener('click', function(){ openQualify(b.getAttribute('data-id')); }); });
-  }
-
-  // -------- atribuição lead a lead --------
   function buildOriginFilter(){ if(originFilterBuilt) return; originFilterBuilt=true;
     var sel=$('origin-filter'); ORIGINS.forEach(function(o){ var op=document.createElement('option'); op.value=o[0]; op.textContent=o[1]; sel.appendChild(op); }); }
-  function renderAttr(){
-    var tb=$('rows-attr'), empty=$('attr-empty');
+  function leadLabel(l){ return l.raw_email ? esc(l.raw_email) : ('Lead '+esc(String(l.event_id||'').slice(0,8))); }
+  function renderLeads(){
+    var tb=$('rows-leads'), empty=$('leads-empty');
     var rows=allLeads.filter(function(l){ return !attrFilter || l._origin===attrFilter; });
     if(!allLeads.length){ tb.innerHTML=''; empty.classList.remove('hidden'); return; }
     empty.classList.add('hidden');
     if(!rows.length){ tb.innerHTML='<tr><td colspan="6" class="text-center" style="color:var(--muted)">Nenhum lead nesta origem.</td></tr>'; return; }
     tb.innerHTML=rows.map(function(l){
+      var device='<div class="text-xs mono" style="color:var(--muted)">'+esc(l.os||'')+(l.is_mobile?' · móvel':'')+'</div>';
+      var contact='<div>'+leadLabel(l)+'</div>'+device;
       var badge='<span class="pill '+originPillClass(l._origin)+'">'+esc(ORIGIN_LABEL[l._origin]||l._origin)+'</span>';
       var fonte=esc(l.utm_source||'—')+(l.utm_medium?(' / '+esc(l.utm_medium)):'');
       var cont=esc(l.utm_content||'—')+(l.utm_term?(' · '+esc(l.utm_term)):'');
-      return '<tr><td class="text-xs">'+whenLabel(l.timestamp)+'</td><td>'+badge+'</td><td class="text-xs">'+fonte+'</td><td>'+esc(l.utm_campaign||'—')+'</td><td class="text-xs">'+cont+'</td><td>'+statusPill(l)+'</td></tr>';
+      return '<tr><td>'+contact+'</td><td>'+badge+'</td><td class="text-xs">'+fonte+'</td><td>'+esc(l.utm_campaign||'—')+'</td><td class="text-xs">'+cont+'</td><td class="text-xs">'+whenLabel(l.timestamp)+'</td></tr>';
     }).join('');
-  }
-
-  // -------- qualify modal --------
-  var pendingId=null;
-  function openQualify(eventId){
-    pendingId=eventId;
-    $('modal-title').textContent='Marcar como Lead Qualificado';
-    $('modal-text').textContent='Confirma que este lead é QUALIFICADO? Será enviado o evento QualifiedLead ao Meta (CAPI), atribuído pela sessão de origem (fbp/fbc). Esta ação é registrada e não deve ser repetida.';
-    $('modal-error').classList.add('hidden');
-    $('modal').classList.remove('hidden');
-  }
-  function closeQualify(){ $('modal').classList.add('hidden'); pendingId=null; }
-  function submitQualify(){
-    if(!pendingId) return;
-    $('modal-ok').disabled=true;
-    fetch(QUALIFY+'?key='+encodeURIComponent(KEY),{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ event_id:pendingId }) })
-      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
-      .then(function(res){ $('modal-ok').disabled=false;
-        if(!res.ok && res.j.qualified_lead_status!=='sent'){ var e=$('modal-error'); e.textContent=res.j.error||('Falha ('+(res.j.qualified_lead_status||'?')+')'); e.classList.remove('hidden'); return; }
-        // marca localmente e re-renderiza
-        var lead=allLeads.filter(function(l){return l.event_id===pendingId;})[0]; if(lead) lead.qualified_lead_status='sent';
-        closeQualify(); renderAll();
-      }).catch(function(){ $('modal-ok').disabled=false; var e=$('modal-error'); e.textContent='Erro de rede.'; e.classList.remove('hidden'); });
   }
 
   // -------- controls --------
@@ -542,17 +436,10 @@
 
     document.querySelectorAll('.tab-btn').forEach(function(b){ b.addEventListener('click', function(){
       tab=b.getAttribute('data-tab'); document.querySelectorAll('.tab-btn').forEach(function(x){ x.classList.toggle('active', x===b); });
-      $('tab-resultados').classList.toggle('hidden', tab!=='resultados'); $('tab-whatsapp').classList.toggle('hidden', tab!=='whatsapp');
-      $('tab-atribuicao').classList.toggle('hidden', tab!=='atribuicao');
+      $('tab-resultados').classList.toggle('hidden', tab!=='resultados'); $('tab-leads').classList.toggle('hidden', tab!=='leads');
       if(tab==='resultados' && allLeads.length) renderChart(); }); });
 
-    $('origin-filter').addEventListener('change', function(){ attrFilter=$('origin-filter').value; renderAttr(); });
-    document.querySelectorAll('#inbox-filter .seg-btn').forEach(function(b){ b.addEventListener('click', function(){
-      inboxStatus=b.getAttribute('data-status'); document.querySelectorAll('#inbox-filter .seg-btn').forEach(function(x){ x.classList.toggle('active', x===b); }); renderInbox(); }); });
-
-    $('modal-cancel').addEventListener('click', closeQualify);
-    $('modal').addEventListener('click', function(e){ if(e.target===$('modal')) closeQualify(); });
-    $('modal-ok').addEventListener('click', submitQualify);
+    $('origin-filter').addEventListener('change', function(){ attrFilter=$('origin-filter').value; renderLeads(); });
   }
 
   function init(){
