@@ -159,6 +159,11 @@ export async function onRequestPost(context) {
     }
 
     const rawEmail = userData.em || '';
+    // Nome/telefone em texto para a visão de atendimento do dashboard. O hashing
+    // para o Meta (acima) continua intacto; isto é só persistência first-party.
+    const rawName = [userData.fn, userData.ln].filter(Boolean).join(' ').trim();
+    const rawPhone = (userData.ph || '').toString().trim();
+    const landingPage = (body.page || '').toString().slice(0, 8);
 
     // --- Log to D1 (background) ---
     // Skip PageView: conversions fire regardless of this log, and the health
@@ -181,8 +186,8 @@ export async function onRequestPost(context) {
                 sent_to_meta, meta_status_code, meta_response_ok, meta_response_body, meta_payload_sent,
                 sent_to_ga4, ga4_status_code, ga4_response_ok, ga4_response_body, ga4_payload_sent,
                 has_email, has_phone, has_name,
-                raw_email
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                raw_email, raw_name, raw_phone, page
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `).bind(
               sessionId, body.event_name, body.event_id, body.event_time,
               browserInfo.browser, browserInfo.version, browserInfo.os, browserInfo.isMobile ? 1 : 0,
@@ -192,7 +197,7 @@ export async function onRequestPost(context) {
               isBot ? 0 : 1, metaStatusCode, metaResponseOk, metaResponseBody, metaPayloadSent ?? null,
               isBot ? 0 : 1, ga4StatusCode, ga4ResponseOk, ga4ResponseBody, ga4PayloadSent ?? null,
               hashedEm ? 1 : 0, hashedPh ? 1 : 0, (hashedFn || hashedLn) ? 1 : 0,
-              rawEmail
+              rawEmail, rawName, rawPhone, landingPage
             ).run();
           }
         } catch (e) {

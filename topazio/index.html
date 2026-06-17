@@ -69,11 +69,12 @@
             event_id: pvEventId,
             event_time: Math.floor(Date.now() / 1000),
             event_source_url: window.location.href,
+            page: 'A',
             user_data: {},
           }),
         }).catch(function () {});
       })();
-    </script>
+</script>
   </head>
   <body data-landing-variant="principal">
     <header class="site-header">
@@ -472,6 +473,10 @@
             <input type="tel" name="telefone" required autocomplete="tel" placeholder="(47) 99241-2160" />
           </label>
           <label>
+            Seu e-mail
+            <input type="email" name="email" required autocomplete="email" placeholder="seu@email.com.br" />
+          </label>
+          <label>
             Qual planta te interessa mais?
             <select name="unidade" required>
               <option value="">Escolha uma opção…</option>
@@ -514,7 +519,7 @@
           body: JSON.stringify({
             event_name: 'FormOpen', event_id: id,
             event_time: Math.floor(Date.now() / 1000),
-            event_source_url: window.location.href, user_data: {},
+            event_source_url: window.location.href, page: 'A', user_data: {},
           }),
         }).catch(function () {});
       }
@@ -554,16 +559,19 @@
       function markInvalid(field, on) { if (field) field.classList.toggle('error', !!on); }
 
       async function handleSubmit(form) {
-        var nomeEl = form.elements.nome, telEl = form.elements.telefone, uniEl = form.elements.unidade;
+        var nomeEl = form.elements.nome, telEl = form.elements.telefone,
+            emailEl = form.elements.email, uniEl = form.elements.unidade;
         var nome = (nomeEl.value || '').trim();
         var telefone = (telEl.value || '').trim();
+        var email = (emailEl.value || '').trim();
         var unidade = uniEl.value ? uniEl.options[uniEl.selectedIndex].value : '';
 
         var ok = true;
         markInvalid(nomeEl, !nome); if (!nome) ok = false;
         markInvalid(telEl, !telefone); if (!telefone) ok = false;
+        markInvalid(emailEl, !email); if (!email) ok = false;
         markInvalid(uniEl, !unidade); if (!unidade) ok = false;
-        if (!ok) { (nome ? (telefone ? uniEl : telEl) : nomeEl).focus(); return; }
+        if (!ok) { (nome ? (telefone ? (email ? uniEl : emailEl) : telEl) : nomeEl).focus(); return; }
 
         var btn = form.querySelector('button[type="submit"]');
         var successEl = form.querySelector('.form-success');
@@ -590,7 +598,8 @@
             event_id: eventId,
             event_time: eventTime,
             event_source_url: window.location.href,
-            user_data: { fn: fn, ln: ln, ph: telefone },
+            page: 'A',
+            user_data: { fn: fn, ln: ln, ph: telefone, em: email },
           }),
         }).catch(function () {});
 
@@ -599,7 +608,8 @@
         var msg =
           'Olá! Acabei de preencher o formulário no site do Topazio Residence.\n\n' +
           '*Nome:* ' + nome + '\n' +
-          '*WhatsApp:* ' + telefone +
+          '*WhatsApp:* ' + telefone + '\n' +
+          '*E-mail:* ' + email +
           (unidade ? '\n*Planta de interesse:* ' + unidade : '');
         var dest = 'https://api.whatsapp.com/send/?phone=' + WA_NUMBER + '&text=' + encodeURIComponent(msg);
         // Espera o /tracker até ~600ms (keepalive cobre o resto) e segue pro WhatsApp.

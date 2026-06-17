@@ -84,9 +84,47 @@
         <div class="card p-5">
           <div class="kpi-label">Leads</div>
           <div class="kpi-value mono accent-green mt-1" id="kpi-leads">—</div>
-          <div class="text-xs text-[color:var(--muted)] mt-1">Non-bot, last window</div>
+          <div class="text-xs text-[color:var(--muted)] mt-1" id="kpi-leads-sub">A — · B —</div>
         </div>
       </div>
+    </section>
+
+    <!-- Meta Ads: investimento e custo por lead por página -->
+    <section class="card p-5 fade-in">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="font-semibold">Meta Ads — investimento por página</div>
+          <div class="text-xs text-[color:var(--muted)]">
+            Spend sincronizado do Meta; campanhas separadas pelo marcador no nome
+            (<span id="ads-tags" class="mono"></span>). Custo por lead = investimento ÷ leads da página.
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mono">
+        <div>
+          <div class="kpi-label">Investimento total</div>
+          <div class="text-2xl accent-amber mt-1" id="ads-total">—</div>
+        </div>
+        <div>
+          <div class="kpi-label">Investimento A</div>
+          <div class="text-2xl mt-1" id="ads-spend-a">—</div>
+          <div class="text-[11px] text-[color:var(--muted)]">mulher 55+</div>
+        </div>
+        <div>
+          <div class="kpi-label">Investimento B</div>
+          <div class="text-2xl mt-1" id="ads-spend-b">—</div>
+          <div class="text-[11px] text-[color:var(--muted)]">homem 30-55</div>
+        </div>
+        <div>
+          <div class="kpi-label">Custo / lead A</div>
+          <div class="text-2xl accent-blue mt-1" id="ads-cpl-a">—</div>
+        </div>
+        <div>
+          <div class="kpi-label">Custo / lead B</div>
+          <div class="text-2xl accent-purple mt-1" id="ads-cpl-b">—</div>
+        </div>
+      </div>
+      <div class="text-[11px] text-[color:var(--muted)] mt-3" id="ads-note">&nbsp;</div>
     </section>
 
     <!-- Revenue time series -->
@@ -240,16 +278,18 @@
           <thead class="text-xs uppercase tracking-wider text-[color:var(--dim)] border-b border-[color:var(--border)]">
             <tr>
               <th class="text-left py-2 pr-4">When</th>
+              <th class="text-center py-2 pr-4">Página</th>
+              <th class="text-left py-2 pr-4">Nome</th>
               <th class="text-left py-2 pr-4">Email</th>
               <th class="text-left py-2 pr-4">Source</th>
               <th class="text-left py-2 pr-4">Campaign</th>
-              <th class="text-left py-2 pr-4">Medium</th>
+              <th class="text-center py-2 pr-4">WhatsApp</th>
               <th class="text-center py-2 pr-4">Meta</th>
               <th class="text-center py-2">GA4</th>
             </tr>
           </thead>
           <tbody id="leads-tbody">
-            <tr><td colspan="7" class="py-6 text-center text-[color:var(--muted)]">Loading…</td></tr>
+            <tr><td colspan="9" class="py-6 text-center text-[color:var(--muted)]">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -397,6 +437,7 @@
   // -------- Helpers --------
   const fetchJson = path => fetch(`${path}${path.includes('?') ? '&' : '?'}key=${encodeURIComponent(key)}`).then(r => r.json());
   const money = (n, cur = 'BRL') => new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, maximumFractionDigits: 0 }).format(Number(n || 0));
+  const money2 = (n, cur = 'BRL') => new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(n || 0));
   const fmtInt = n => new Intl.NumberFormat('en-US').format(Number(n || 0));
   const fmtDate = ts => new Date(Number(ts) * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
@@ -496,30 +537,68 @@
     });
   }
 
+  let leadsCache = [];
+
+  function pageBadge(p) {
+    const cls = p === 'B'
+      ? 'bg-[color:var(--accent-purple)]'
+      : 'bg-[color:var(--accent-green)]';
+    return `<span class="inline-block ${cls} text-white rounded px-1.5 py-0.5 text-[11px] font-semibold">${escapeHtml(p || 'A')}</span>`;
+  }
+  function waBadge(l) {
+    return l.wa_sent_at > 0
+      ? '<span class="accent-green" title="WhatsApp enviado">✓ enviado</span>'
+      : '<span class="text-[color:var(--muted)]">—</span>';
+  }
+
   async function loadLeads(days) {
-    const data = await fetchJson(`/api/leads?days=${days}&limit=50`);
-    qs('#kpi-leads').textContent = fmtInt((data.leads || []).length);
+    const data = await fetchJson(`/api/leads?days=${days}&limit=100`);
+    leadsCache = data.leads || [];
+    qs('#kpi-leads').textContent = fmtInt(leadsCache.length);
+    const bp = data.by_page || { A: 0, B: 0 };
+    qs('#kpi-leads-sub').textContent = `A ${fmtInt(bp.A)} · B ${fmtInt(bp.B)}`;
     const tbody = qs('#leads-tbody');
-    if (!data.leads || data.leads.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-[color:var(--muted)]">No leads in this window.</td></tr>';
+    if (leadsCache.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" class="py-6 text-center text-[color:var(--muted)]">No leads in this window.</td></tr>';
       return;
     }
-    tbody.innerHTML = data.leads.map((l, i) => `
+    tbody.innerHTML = leadsCache.map((l, i) => `
       <tr class="row-hover border-b border-[color:var(--border)] cursor-pointer" data-idx="${i}">
         <td class="py-2 pr-4 text-[color:var(--dim)]">${fmtDate(l.timestamp)}</td>
+        <td class="py-2 pr-4 text-center">${pageBadge(l.page)}</td>
+        <td class="py-2 pr-4">${escapeHtml(l.raw_name || '—')}</td>
         <td class="py-2 pr-4 mono">${escapeHtml(l.raw_email || '—')}</td>
         <td class="py-2 pr-4">${escapeHtml(l.utm_source || '(direct)')}</td>
         <td class="py-2 pr-4 text-[color:var(--dim)]">${escapeHtml(l.utm_campaign || '—')}</td>
-        <td class="py-2 pr-4 text-[color:var(--dim)]">${escapeHtml(l.utm_medium || '—')}</td>
+        <td class="py-2 pr-4 text-center text-xs">${waBadge(l)}</td>
         <td class="py-2 pr-4 text-center">${l.meta_response_ok ? '<span class="accent-green">✓</span>' : '<span class="accent-red">✕</span>'}</td>
         <td class="py-2 text-center">${l.ga4_response_ok ? '<span class="accent-green">✓</span>' : '<span class="accent-red">✕</span>'}</td>
       </tr>
     `).join('');
     qsa('#leads-tbody tr[data-idx]').forEach(row => {
       row.addEventListener('click', () => {
-        openDetails('lead', data.leads[parseInt(row.getAttribute('data-idx'), 10)]);
+        openDetails('lead', leadsCache[parseInt(row.getAttribute('data-idx'), 10)]);
       });
     });
+  }
+
+  async function loadAdOverview(days) {
+    const data = await fetchJson(`/api/ad-overview?days=${days}`);
+    const cur = data.currency || 'BRL';
+    qs('#ads-total').textContent   = data.total_spend > 0 ? money(data.total_spend, cur) : '—';
+    qs('#ads-spend-a').textContent = data.spend_a > 0 ? money(data.spend_a, cur) : '—';
+    qs('#ads-spend-b').textContent = data.spend_b > 0 ? money(data.spend_b, cur) : '—';
+    qs('#ads-cpl-a').textContent   = data.cpl_a != null ? money2(data.cpl_a, cur) : '—';
+    qs('#ads-cpl-b').textContent   = data.cpl_b != null ? money2(data.cpl_b, cur) : '—';
+    qs('#ads-tags').textContent    = `${data.tag_a || '[A]'} / ${data.tag_b || '[B]'}`;
+    const note = qs('#ads-note');
+    if (!(data.total_spend > 0)) {
+      note.textContent = 'Sem investimento sincronizado nesta janela — configure o sync do Meta (SYNC_SECRET, META_ADS_*) e o cron de /api/sync/meta-ads.';
+    } else if (data.spend_untagged > 0) {
+      note.textContent = `${money(data.spend_untagged, cur)} em campanhas sem marcador ${data.tag_a}/${data.tag_b} (contam só no total).`;
+    } else {
+      note.textContent = ' ';
+    }
   }
 
   async function loadPurchases() {
@@ -564,13 +643,15 @@
 
     if (kind === 'lead') {
       title.textContent = 'Lead details';
-      subtitle.textContent = `${fmtDate(row.timestamp)} · ${row.raw_email || '(no email)'} · event_id ${row.event_id || '—'}`;
+      subtitle.textContent = `${fmtDate(row.timestamp)} · Página ${row.page || 'A'} · event_id ${row.event_id || '—'}`;
     } else {
       title.textContent = 'Purchase details';
       subtitle.textContent = `${fmtDate(row.created_at)} · ${row.raw_email || '(no email)'} · ${money(row.value, row.currency || 'BRL')} · txn ${row.transaction_id || '—'}`;
     }
 
-    const sections = [
+    const sections = [];
+    if (kind === 'lead') sections.push(renderLeadContact(row));
+    sections.push(
       renderPayloadSection('Meta CAPI', {
         status_code: row.meta_status_code,
         response_ok: row.meta_response_ok,
@@ -583,7 +664,7 @@
         payload_sent: row.ga4_payload_sent,
         response_body: row.ga4_response_body,
       }),
-    ];
+    );
 
     if (kind === 'purchase') {
       sections.push(renderPayloadSection('Google Ads', {
@@ -595,9 +676,74 @@
     }
 
     body.innerHTML = sections.join('');
+
+    if (kind === 'lead') {
+      const btn = qs('#wa-sent-btn');
+      if (btn) {
+        btn.addEventListener('click', async () => {
+          const id = parseInt(btn.getAttribute('data-id'), 10);
+          const makeSent = btn.getAttribute('data-sent') !== '1';
+          btn.disabled = true;
+          const ok = await markWaSent(id, makeSent);
+          btn.disabled = false;
+          if (ok) {
+            row.wa_sent_at = makeSent ? Math.floor(Date.now() / 1000) : 0;
+            openDetails('lead', row);   // re-render modal with updated state + listeners
+            loadLeads(currentDays);     // refresh the table badge in the background
+          }
+        });
+      }
+    }
+
     const modal = qs('#details-modal');
     modal.classList.remove('hidden');
     modal.classList.add('flex');
+  }
+
+  function renderLeadContact(row) {
+    const sentLabel = row.wa_sent_at > 0
+      ? `<span class="accent-green text-sm">✓ WhatsApp enviado em ${fmtDate(row.wa_sent_at)}</span>`
+      : '<span class="text-[color:var(--muted)] text-sm">WhatsApp ainda não enviado</span>';
+    const btnLabel = row.wa_sent_at > 0 ? 'Desmarcar WhatsApp' : 'Sinalizar: enviei WhatsApp';
+    const btnCls = row.wa_sent_at > 0
+      ? 'border border-[color:var(--border)] text-[color:var(--dim)]'
+      : 'bg-[color:var(--accent-green)] text-white';
+    return `
+      <div id="lead-contact-block">
+        <div class="text-xs uppercase tracking-wider text-[color:var(--dim)] mb-2">Contato do lead</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          <div>
+            <div class="text-[11px] text-[color:var(--muted)] uppercase tracking-wider">Nome</div>
+            <div class="text-sm">${escapeHtml(row.raw_name || '—')}</div>
+          </div>
+          <div>
+            <div class="text-[11px] text-[color:var(--muted)] uppercase tracking-wider">Telefone</div>
+            <div class="text-sm mono">${escapeHtml(row.raw_phone || '—')}</div>
+          </div>
+          <div>
+            <div class="text-[11px] text-[color:var(--muted)] uppercase tracking-wider">E-mail</div>
+            <div class="text-sm mono break-all">${escapeHtml(row.raw_email || '—')}</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap">
+          <button id="wa-sent-btn" data-id="${row.id}" data-sent="${row.wa_sent_at > 0 ? '1' : '0'}"
+            class="rounded-lg px-3 py-1.5 text-sm font-semibold ${btnCls}">${btnLabel}</button>
+          ${sentLabel}
+        </div>
+        <hr class="my-4 border-[color:var(--border)]">
+      </div>
+    `;
+  }
+
+  async function markWaSent(id, sent) {
+    try {
+      const r = await fetch(`/api/mark-wa-sent?key=${encodeURIComponent(key)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, sent }),
+      });
+      return r.ok;
+    } catch (_) { return false; }
   }
 
   function renderPayloadSection(sectionTitle, data) {
@@ -741,6 +887,7 @@
       loadRevenue(days),
       loadProducts(days),
       loadAttribution(days),
+      loadAdOverview(days),
       loadUtm(),
       loadLeads(days),
       loadPurchases(),

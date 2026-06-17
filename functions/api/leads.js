@@ -24,15 +24,24 @@ export async function onRequestGet(context) {
   const botClause = includeBots ? '' : 'AND e.is_bot = 0';
 
   try {
+    // page: usa e.page; para leads antigos (vazio) deriva da landing_url da sessão
+    // ('%/topaziob%' → 'B', senão 'A'). Campos de dispositivo (browser/os/is_mobile)
+    // foram removidos da resposta a pedido — não são exibidos no dashboard.
     const rows = await env.DB.prepare(`
       SELECT
+        e.id,
         e.event_id,
         e.timestamp,
         e.session_id,
         e.raw_email,
-        e.browser,
-        e.os,
-        e.is_mobile,
+        e.raw_name,
+        e.raw_phone,
+        CASE
+          WHEN e.page IS NOT NULL AND e.page != '' THEN e.page
+          WHEN s.landing_url LIKE '%/topaziob%' THEN 'B'
+          ELSE 'A'
+        END as page,
+        e.wa_sent_at,
         e.is_bot,
         e.bot_reason,
         e.meta_status_code,
@@ -88,10 +97,36 @@ export async function onRequestGet(context) {
         AND is_bot = 0
     `).bind(since).first();
 
+    // Contagem de leads por página (A vs B) no período — usado nos KPIs do dash.
+    // Subquery: agrupa pelo VALOR derivado de page (event_log tem coluna `page`,
+    // então GROUP BY direto agruparia pela coluna crua e separaria '' de 'A').
+    const byPageRows = await env.DB.prepare(`
+      SELECT page, COUNT(*) as count FROM (
+        SELECT
+          CASE
+            WHEN e.page IS NOT NULL AND e.page != '' THEN e.page
+            WHEN s.landing_url LIKE '%/topaziob%' THEN 'B'
+            ELSE 'A'
+          END as page
+        FROM event_log e
+        LEFT JOIN sessions s ON e.session_id = s.session_id
+        WHERE e.event_name = 'Lead'
+          AND e.timestamp >= ?
+          AND e.is_bot = 0
+      )
+      GROUP BY page
+    `).bind(since).all();
+
+    const byPage = { A: 0, B: 0 };
+    for (const r of byPageRows.results || []) {
+      if (r.page === 'A' || r.page === 'B') byPage[r.page] += Number(r.count || 0);
+    }
+
     return json({
       days,
       leads: rows.results || [],
       summary: summary.results || [],
+      by_page: byPage,
       form_opens: formOpens?.n ?? 0,
     });
   } catch (err) {

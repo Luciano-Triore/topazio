@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Edifício Topázio — apartamento compacto com coworking exclusivo no centro de Balneário Camboriú. Tenha um escritório em casa. Pré-lançamento Triore com Luciano Pavan."
+  />
+  <meta name="robots" content="index, follow" />
+  <title>Topázio Residence | Apartamento com coworking no centro de BC</title>
+  <link rel="canonical" href="https://topazio.pages.dev/topaziob/" />
+
+  <meta property="og:url" content="https://topazio.pages.dev/topaziob/" />
+  <meta property="og:title" content="Edifício Topázio — tenha um escritório em casa, no centro de BC" />
+  <meta property="og:description" content="Apartamento compacto + coworking exclusivo + lazer, no centro de Balneário Camboriú. Receba tabela, plantas e condições de pré-lançamento." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="fotos/fachada-hero.webp" />
+  <link rel="stylesheet" href="css/stylesescuro.css" />
+
+  <!--
+    ===================================================================
+    TRAQUEAMENTO — Meta Pixel + Conversions API (server-side via /tracker)
+    Igual à /topazio. O middleware grava a sessão (UTMs / fbclid / fbp)
+    no primeiro acesso. Aqui: Pixel + PageView (deduplicado) e PageView
+    server-side via /tracker. O envio do formulário dispara o Lead.
+    Esta é a PÁGINA B (page:'B') — público homem 30-55, ângulo escritório.
+    ===================================================================
+  -->
+  <script>
+    var META_PIXEL_ID = '1806281186721506';
+    var LANDING_PAGE = 'B';
+
+    (function () {
+      var pvEventId = (crypto.randomUUID && crypto.randomUUID()) ||
+        (Date.now() + '-' + Math.random().toString(36).slice(2));
+
+      if (/^\d+$/.test(META_PIXEL_ID)) {
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+        document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', META_PIXEL_ID);
+        fbq('track', 'PageView', {}, { eventID: pvEventId });
+      }
+
+      fetch('/tracker', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true,
+        body: JSON.stringify({
+          event_name: 'PageView',
+          event_id: pvEventId,
+          event_time: Math.floor(Date.now() / 1000),
+          event_source_url: window.location.href,
+          page: LANDING_PAGE,
+          user_data: {},
+        }),
+      }).catch(function () {});
+    })();
+  </script>
+</head>
+<body data-landing-variant="escritorio">
+
+<!-- ══════════════════════════════════════════════ STICKY BAR ═══ -->
+<div class="sticky-bar">
+  <p>🔴 Lançamento — apenas 3 unidades disponíveis</p>
+  <button type="button" data-wa>Falar no WhatsApp</button>
+</div>
+
+<!-- ══════════════════════════════════════════════ HERO ═════════ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-logo">OBRAS INICIADAS · Incorporada Triore</div>
+
+    <div class="hero-body">
+      <div class="hero-eyebrow">Lançamento · Balneário Camboriú · SC</div>
+
+      <h1>Edifício <em>Topázio</em></h1>
+      <p class="h2">TENHA UM ESCRITÓRIO EM CASA</p>
+      <p class="h3">COWORKING + APARTAMENTO + LAZER</p>
+
+      <p class="hero-sub">
+        Espaço coworking exclusivo para moradores.<br/>
+        Apartamento compacto, prático e funcional.<br/>
+        Mini Clube exclusivo. Área de lazer quase privativa.<br/>
+        Localização central, perto de tudo que você precisa no dia a dia.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn-primary" type="button" data-wa>Quero reservar minha unidade</button>
+        <a class="btn-ghost" href="#projeto">Ver o projeto ↓</a>
+      </div>
+    </div>
+
+    <div class="hero-image-wrap">
+      <div class="media-placeholder" style="aspect-ratio:16/7;">
+        <img src="fotos/fachada-hero.webp" alt="Fachada principal Edifício Topázio" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ URGÊNCIA ═════ -->
+<div class="urgency-strip">
+  <div class="container">
+    <div class="urgency-items">
+      <div class="urgency-item">
+        <div class="urgency-dot"></div>
+        <span>Lançamento já em obras</span>
+      </div>
+      <div class="urgency-item">
+        <strong>Apenas 3</strong> unidades restantes
+      </div>
+      <div class="urgency-item">
+        Alta <strong>liquidez</strong>
+      </div>
+    </div>
+    <button class="btn-primary" type="button" data-wa style="font-size:.8rem;">
+      Ver preços e condições →
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ VÍDEOS ═══════ -->
+<section class="video-section">
+  <div class="container">
+    <p class="section-label">Quem já visitou fala</p>
+    <h2 class="section-title">Veja o que<br/><em>estão dizendo</em></h2>
+    <p class="section-body">Depoimentos reais de quem conheceu o projeto e entendeu por que o Topázio é diferente.</p>
+
+    <div class="video-grid">
+      <div class="media-placeholder" style="aspect-ratio:9/16;">
+        <iframe src="https://www.youtube.com/embed/2LSYsa6XA8o" title="Depoimento - Corretor Luiz Siega - Imobiliária PHAROS" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+      <div class="media-placeholder" style="aspect-ratio:9/16;">
+        <iframe src="https://www.youtube.com/embed/Qbc3ci9V7Xg" title="Depoimento - Corretor Roberto Barros" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+      <div class="media-placeholder" style="aspect-ratio:9/16;">
+        <iframe src="https://www.youtube.com/embed/gUnno9MF2OI" title="Depoimento - Corretor Renato Leão - Imobiliária BLANCO" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ DEPOIMENTOS ══ -->
+<section class="testimonials-section">
+  <div class="container">
+    <p class="section-label">Depoimentos</p>
+    <h2 class="section-title">A opinião de quem<br/><em>já reservou</em></h2>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">Expliquei que queria praticidade e um espaço para trabalhar. Me mostraram o coworking do Topázio e fechei.</p>
+        <div class="testimonial-author">
+          <div>
+            <div class="testimonial-name">— Norberto, Advogado</div>
+            <div class="testimonial-meta">Balneário Camboriú</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">Trabalho remoto e queria sair de casa sem sair do prédio. O coworking resolveu exatamente isso.</p>
+        <div class="testimonial-author">
+          <div>
+            <div class="testimonial-name">Rafael, Engenheiro</div>
+            <div class="testimonial-meta">Trabalho híbrido</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">Recebi tabela e condições no WhatsApp no mesmo dia. Sem pressão, do jeito que eu gosto.</p>
+        <div class="testimonial-author">
+          <div>
+            <div class="testimonial-name">Cladimir, Investidor</div>
+            <div class="testimonial-meta">Comprou para alugar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ PROJETO ══════ -->
+<section class="project-section" id="projeto">
+  <div class="container">
+    <p class="section-label">O projeto</p>
+    <h2 class="section-title">Exclusividade<br/><em>que se vê em cada detalhe</em></h2>
+
+    <div class="project-grid">
+      <div class="project-image">
+        <div class="media-placeholder" style="height:100%;">
+          <img src="fotos/cristal.webp" alt="Render do Edifício Topázio" />
+        </div>
+      </div>
+
+      <div>
+        <p class="section-body">
+          Apenas 8 andares, somente 17 unidades. Uma área comum quase exclusiva sua, com coworking
+          para moradores — sem o barulho e o movimento de um condomínio de centenas de apartamentos.
+        </p>
+
+        <ul class="features-list">
+          <li>Coworking exclusivo para moradores — escritório em casa</li>
+          <li>17 unidades — área comum com pouco movimento</li>
+          <li>Churrasqueira à carvão na sacada</li>
+          <li>Área comum entregue finamente mobiliada</li>
+          <li>Acabamento premium com marcas reconhecidas</li>
+          <li>Centro de BC: tudo a poucos minutos a pé</li>
+        </ul>
+
+        <div style="margin-top:2rem;">
+          <button class="btn-primary" type="button" data-wa>Ver preços e condições →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ GALERIA ══════ -->
+<section class="gallery-section">
+  <div class="container">
+    <p class="section-label">Galeria</p>
+    <h2 class="section-title">O <em>Topázio</em> por dentro</h2>
+
+    <div class="gallery-main">
+      <div class="media-placeholder" style="height:100%;">
+        <img src="fotos/coworking16x7.webp" alt="Espaço Coworking do Topázio" />
+      </div>
+    </div>
+
+    <div class="gallery-thumbs">
+      <div class="gallery-thumb">
+        <div class="media-placeholder" style="height:100%;">
+          <img src="fotos/lp-living-01.webp" alt="Living" />
+        </div>
+      </div>
+      <div class="gallery-thumb">
+        <div class="media-placeholder" style="height:100%;">
+          <img src="fotos/lp-living-02.webp" alt="Living" />
+        </div>
+      </div>
+      <div class="gallery-thumb">
+        <div class="media-placeholder" style="height:100%;">
+          <img src="fotos/lp-academia.webp" alt="Academia" />
+        </div>
+      </div>
+      <div class="gallery-thumb">
+        <div class="media-placeholder" style="height:100%;">
+          <img src="fotos/lp-piscina4x3.webp" alt="Piscina" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ UNIDADES ═════ -->
+<section class="units-section">
+  <div class="container">
+    <p class="section-label">Unidades disponíveis</p>
+    <h2 class="section-title">Escolha<br/><em>sua unidade</em></h2>
+    <p class="section-body">Restam 3 unidades. Escolha a sua antes que acabe.</p>
+
+    <div class="units-grid">
+      <div class="unit-card">
+        <div class="unit-img">
+          <div class="media-placeholder" style="height:100%;">
+            <img src="fotos/tipo-1-dif.webp" alt="Unidade 401 Diferenciado" />
+          </div>
+        </div>
+        <div class="unit-body">
+          <div class="unit-name">Unidade 401 Diferenciado</div>
+          <div class="unit-specs"><strong>88 m²</strong> · 2 suítes · Com terraço</div>
+          <button class="unit-cta" type="button" data-wa>Reservar essa unidade</button>
+        </div>
+      </div>
+
+      <div class="unit-card">
+        <div class="unit-img">
+          <div class="media-placeholder" style="height:100%;">
+            <img src="fotos/tipo-2.webp" alt="Unidade 802" />
+          </div>
+        </div>
+        <div class="unit-body">
+          <div class="unit-name">Unidade 802</div>
+          <div class="unit-specs"><strong>61,55 m²</strong> · 2 suítes + 1 vaga</div>
+          <button class="unit-cta" type="button" data-wa>Reservar essa unidade</button>
+        </div>
+      </div>
+
+      <div class="unit-card">
+        <div class="unit-img">
+          <div class="media-placeholder" style="height:100%;">
+            <img src="fotos/tipo-3.webp" alt="Unidade 703" />
+          </div>
+        </div>
+        <div class="unit-body">
+          <div class="unit-name">Unidade 703</div>
+          <div class="unit-specs"><strong>60 m²</strong> · 2 suítes + 1 vaga</div>
+          <button class="unit-cta" type="button" data-wa>Reservar essa unidade</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ CONSTRUTORA ══ -->
+<section class="builder-section">
+  <div class="container">
+    <p class="section-label">Quem constrói</p>
+    <h2 class="section-title">A solidez da<br/><em>Triore Empreendimentos</em></h2>
+
+    <div class="builder-grid">
+      <div>
+        <p class="section-body">
+          Mais de 37 anos de história, presente no RS e em SC, com mais de 10 empreendimentos
+          entregues. Cada projeto carrega o compromisso com prazo, qualidade e valorização do
+          seu investimento.
+        </p>
+
+        <div class="builder-stats">
+          <div class="stat-item">
+            <div class="stat-number">37+</div>
+            <div class="stat-label">anos de mercado</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">10+</div>
+            <div class="stat-label">empreendimentos entregues</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">RS·SC</div>
+            <div class="stat-label">presença regional</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">no prazo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="builder-image">
+        <div class="media-placeholder" style="height:100%; min-height:220px;">
+          <img src="fotos/triore-logo.webp" alt="TRIORE Empreendimentos" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ LOCALIZAÇÃO ══ -->
+<section class="location-section">
+  <div class="container">
+    <p class="section-label">Localização</p>
+    <h2 class="section-title">No coração de<br/><em>Balneário Camboriú</em></h2>
+    <p style="font-size:.82rem; color:var(--c-gold); margin-top:.5rem;">Rua 1500, 913 — Centro</p>
+
+    <div class="location-grid">
+      <div class="location-map">
+        <div class="media-placeholder" style="height:100%; min-height:300px;">
+          <img src="fotos/mapa-topazio.webp" alt="Localização Rua 1500, 913 — Centro BC" />
+        </div>
+      </div>
+
+      <div>
+        <p class="section-body">Estrategicamente localizado na região central de Balneário Camboriú — você chega a pé nos principais serviços da cidade.</p>
+
+        <ul class="nearby-list">
+          <li><div class="nearby-dot"></div>Supermercados e comércio</li>
+          <li><div class="nearby-dot"></div>Farmácias e posto de saúde</li>
+          <li><div class="nearby-dot"></div>Escolas e colégios</li>
+          <li><div class="nearby-dot"></div>Edifícios comerciais</li>
+          <li><div class="nearby-dot"></div>Restaurantes e cafés</li>
+          <li><div class="nearby-dot"></div>Fácil acesso à Av. Brasil e orla</li>
+        </ul>
+
+        <div style="margin-top:1.5rem;">
+          <a
+            class="btn-ghost"
+            href="https://www.google.com/maps/search/Rua+1500+913+Balneário+Camboriú"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Abrir no mapa (Google Maps)</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ CONDIÇÕES ════ -->
+<section class="conditions-section">
+  <div class="container">
+    <p class="section-label">Financiamento direto com a construtora</p>
+
+    <div class="conditions-box">
+      <div>
+        <p class="conditions-title">Condições especiais <em>só para quem reservar agora</em></p>
+        <p class="section-body" style="margin-top:1rem; max-width:100%;">
+          Após o lançamento oficial, os valores sobem e as condições mudam. Este é o melhor
+          momento para garantir o seu.
+        </p>
+        <div class="conditions-cta">
+          <button class="btn-primary" type="button" data-wa>Ver tabela completa →</button>
+        </div>
+      </div>
+
+      <ul class="conditions-items">
+        <li>
+          <div class="cond-icon">✦</div>
+          <div>
+            <strong style="color:var(--c-cream);">Entrada facilitada</strong><br/>
+            <span>Condições especiais para quem reservar antes do lançamento oficial</span>
+          </div>
+        </li>
+        <li>
+          <div class="cond-icon">✦</div>
+          <div>
+            <strong style="color:var(--c-cream);">Parcelamento em até 72x</strong><br/>
+            <span>Flexibilidade real para planejar seu investimento</span>
+          </div>
+        </li>
+        <li>
+          <div class="cond-icon">✦</div>
+          <div>
+            <strong style="color:var(--c-cream);">Correção pelo CUB</strong><br/>
+            <span>Valores corrigidos pelo CUB até a entrega das chaves</span>
+          </div>
+        </li>
+        <li>
+          <div class="cond-icon">✦</div>
+          <div>
+            <strong style="color:var(--c-cream);">Tabela completa via WhatsApp</strong><br/>
+            <span>Preços e formas de pagamento enviados diretamente por mim</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ CONSULTOR ════ -->
+<section class="consultant-section">
+  <div class="container">
+    <div class="consultant-grid">
+      <div class="consultant-photo">
+        <div class="media-placeholder" style="height:100%; min-height:340px;">
+          <img src="fotos/lucianopavan.webp" alt="Luciano Pavan" />
+        </div>
+      </div>
+
+      <div>
+        <p class="section-label">Quem vai te atender</p>
+        <h2 class="consultant-name">Luciano<br/>Pavan</h2>
+        <p class="consultant-title-tag">Consultor Especialista · Balneário Camboriú</p>
+        <p class="consultant-bio">
+          Especialista no mercado imobiliário de Balneário Camboriú. Vou te enviar a tabela de
+          preços, plantas e todas as condições de investimento — com clareza e sem enrolação.
+        </p>
+        <div class="consultant-actions">
+          <button class="btn-primary" type="button" data-wa>Falar com o Luciano</button>
+          <button class="btn-ghost" type="button" data-wa>Receber material pelo WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ FOOTER ═══════ -->
+<footer>
+  <div class="container">
+    <div class="footer-brand">Luciano Pavan · BC</div>
+    <div class="footer-legal">
+      Edifício Topázio — Triore Empreendimentos. Pré-lançamento sujeito a alterações.<br/>
+      Imagens são representações artísticas. Consulte o corretor para condições atualizadas.
+    </div>
+    <div class="footer-creci">CRECI-SC · lucianopavanbc.com.br</div>
+  </div>
+</footer>
+
+<!-- ══════════════════ POP-UP / MODAL DE FORMULÁRIO ══════════════ -->
+<div class="modal-overlay" id="wa-modal" role="dialog" aria-modal="true" aria-labelledby="wa-modal-title" hidden>
+  <div class="modal-card">
+    <button type="button" class="modal-close" id="wa-modal-close" aria-label="Fechar">&times;</button>
+    <form class="contact-form" id="lead-form-modal" novalidate>
+      <div>
+        <h3 class="modal-title" id="wa-modal-title">Receba tudo no WhatsApp</h3>
+        <p class="modal-hint">Preencha rapidinho. Em seguida você será direcionado ao WhatsApp com a mensagem pronta.</p>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="m-name">Seu nome</label>
+          <input type="text" id="m-name" name="nome" autocomplete="name" placeholder="Ex.: João Silva" required />
+        </div>
+        <div class="form-group">
+          <label for="m-phone">WhatsApp (com DDD)</label>
+          <input type="tel" id="m-phone" name="telefone" autocomplete="tel" placeholder="(47) 99241-2160" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="m-email">E-mail</label>
+        <input type="email" id="m-email" name="email" autocomplete="email" placeholder="seu@email.com.br" required />
+      </div>
+      <div class="form-group">
+        <label for="m-profile">Seu perfil de interesse</label>
+        <select id="m-profile" name="perfil" required>
+          <option value="" disabled selected>Selecione…</option>
+          <option value="Investimento / Valorização">Investimento / Valorização</option>
+          <option value="Segunda residência em BC">Segunda residência em BC</option>
+          <option value="Moradia permanente">Moradia permanente</option>
+          <option value="Escritório em casa / coworking">Escritório em casa / coworking</option>
+          <option value="Outro">Outro</option>
+        </select>
+      </div>
+      <button type="submit" class="form-submit">Enviar e conversar no WhatsApp</button>
+      <p class="form-legal">Ao enviar, você autoriza contato sobre o Edifício Topázio. Seus dados não são vendidos a terceiros.</p>
+      <div class="form-success" id="form-success">✦ Recebido! Abrindo o WhatsApp agora…</div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════ LÓGICA: pop-up + Lead + redirect WhatsApp ═════ -->
+<script>
+(function () {
+  var WA_NUMBER = '5547992412160';
+  var PAGE = (window.LANDING_PAGE || 'B');
+
+  // FormOpen: disparado quando o pop-up abre (clicou num CTA de WhatsApp).
+  var formOpenFired = false;
+  function fireFormOpen() {
+    if (formOpenFired) return;
+    formOpenFired = true;
+    var id = (crypto.randomUUID && crypto.randomUUID()) ||
+      (Date.now() + '-' + Math.random().toString(36).slice(2));
+    try { if (window.fbq) fbq('trackCustom', 'FormOpen', {}, { eventID: id }); } catch (e) {}
+    fetch('/tracker', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+      body: JSON.stringify({
+        event_name: 'FormOpen', event_id: id,
+        event_time: Math.floor(Date.now() / 1000),
+        event_source_url: window.location.href, page: PAGE, user_data: {},
+      }),
+    }).catch(function () {});
+  }
+
+  // --- Modal ---
+  var modal = document.getElementById('wa-modal');
+  var modalClose = document.getElementById('wa-modal-close');
+  var lastFocus = null;
+  function openModal() {
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    modal.classList.add('is-open');
+    document.body.classList.add('modal-open');
+    var first = modal.querySelector('input, select, button');
+    if (first) first.focus();
+    fireFormOpen();
+  }
+  function closeModal() {
+    modal.classList.remove('is-open');
+    modal.hidden = true;
+    document.body.classList.remove('modal-open');
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  document.querySelectorAll('[data-wa]').forEach(function (el) {
+    el.addEventListener('click', function (e) { e.preventDefault(); openModal(); });
+  });
+  if (modalClose) modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+  });
+
+  // --- Formulário: dispara o Lead e redireciona ---
+  function markInvalid(field, on) { if (field) field.classList.toggle('error', !!on); }
+
+  async function handleSubmit(form) {
+    var nomeEl = form.elements.nome, telEl = form.elements.telefone,
+        emailEl = form.elements.email, perfilEl = form.elements.perfil;
+    var nome = (nomeEl.value || '').trim();
+    var telefone = (telEl.value || '').trim();
+    var email = (emailEl.value || '').trim();
+    var perfil = perfilEl.value ? perfilEl.options[perfilEl.selectedIndex].value : '';
+
+    var ok = true;
+    markInvalid(nomeEl, !nome); if (!nome) ok = false;
+    markInvalid(telEl, !telefone); if (!telefone) ok = false;
+    markInvalid(emailEl, !email); if (!email) ok = false;
+    markInvalid(perfilEl, !perfil); if (!perfil) ok = false;
+    if (!ok) { (nome ? (telefone ? (email ? perfilEl : emailEl) : telEl) : nomeEl).focus(); return; }
+
+    var btn = form.querySelector('button[type="submit"]');
+    var successEl = form.querySelector('.form-success');
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+
+    var nameParts = nome.split(/\s+/);
+    var fn = nameParts[0] || '';
+    var ln = nameParts.slice(1).join(' ') || '';
+
+    var eventId = (crypto.randomUUID && crypto.randomUUID()) ||
+      (Date.now() + '-' + Math.random().toString(36).slice(2));
+    var eventTime = Math.floor(Date.now() / 1000);
+
+    try { if (window.fbq) fbq('track', 'Lead', {}, { eventID: eventId }); } catch (e) {}
+
+    var sent = fetch('/tracker', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      keepalive: true,
+      body: JSON.stringify({
+        event_name: 'Lead',
+        event_id: eventId,
+        event_time: eventTime,
+        event_source_url: window.location.href,
+        page: PAGE,
+        user_data: { fn: fn, ln: ln, ph: telefone, em: email },
+      }),
+    }).catch(function () {});
+
+    if (successEl) successEl.style.display = 'block';
+
+    var msg =
+      'Olá! Acabei de preencher o formulário no site do Edifício Topázio.\n\n' +
+      '*Nome:* ' + nome + '\n' +
+      '*WhatsApp:* ' + telefone + '\n' +
+      '*E-mail:* ' + email +
+      (perfil ? '\n*Interesse:* ' + perfil : '');
+    var dest = 'https://api.whatsapp.com/send/?phone=' + WA_NUMBER + '&text=' + encodeURIComponent(msg);
+    await Promise.race([sent, new Promise(function (r) { setTimeout(r, 600); })]);
+    window.location.href = dest;
+  }
+
+  var form = document.getElementById('lead-form-modal');
+  if (form) {
+    form.addEventListener('submit', function (e) { e.preventDefault(); handleSubmit(form); });
+  }
+})();
+</script>
+
+</body>
+</html>
