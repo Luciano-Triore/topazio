@@ -85,6 +85,7 @@ label { font-size: 1.05rem; }
    .img-slot {
     position: relative;
     width: 100%;
+    margin: 0;                 /* zera a margem padrão de <figure> (1em 40px) — era o que estourava o grid */
     border-radius: var(--radius);
     overflow: hidden;
     background: var(--color-bg-alt);
