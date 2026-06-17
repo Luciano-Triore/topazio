@@ -944,11 +944,13 @@ label { font-size: 1.05rem; }
   .urgency-bar { font-size: 0.8rem; padding: 0.6rem 1rem; line-height: 1.35; }
 
   /* ── Centralização das mídias no mobile ── */
-  /* Galeria "Conheça o empreendimento": 1 coluna centralizada */
+  /* Galeria "Conheça o empreendimento": fotos em duplas (2 por linha),
+     contidas na seção e sem encostar nas bordas da tela */
   .img-gallery--3 {
-    grid-template-columns: 1fr;
-    max-width: 420px;
-    margin-inline: auto;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.7rem;
+    max-width: 100%;
+    margin-inline: 0;
   }
   /* Render do apartamento e mapa da localização: centralizados */
   #renders .img-slot--wide,
