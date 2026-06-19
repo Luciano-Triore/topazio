@@ -873,4 +873,9 @@ body.modal-open { overflow: hidden; }
   .hero h1 { font-size: 2.6rem; }
   .hero-actions { flex-direction: column; }
   .btn-primary, .btn-ghost { text-align: center; width: 100%; }
+
+  /* primeira imagem (fachada hero): aproxima e dá mais altura no mobile */
+  .hero-image-wrap { height: 100%; margin-top: 1.5rem; }
+  .hero-image-wrap .media-placeholder { aspect-ratio: 4/3; }
+  .hero-image-wrap .media-placeholder img { object-position: center; }
 }
