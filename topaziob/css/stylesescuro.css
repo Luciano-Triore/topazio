@@ -373,6 +373,10 @@ section { padding-block: clamp(3.5rem, 7vw, 6rem); }
 /* A logo da construtora deve aparecer inteira (não recortada) */
 .builder-image img[src*="triore-logo"] { object-fit: contain; }
 
+/* Primeira foto (fachada hero): exibir inteira, sem recorte — igual à topazio-lp */
+.hero-image-wrap .media-placeholder { aspect-ratio: auto; }
+.hero-image-wrap .media-placeholder img { height: auto; object-fit: contain; }
+
 /* ─── DEPOIMENTOS ───────────────────────────────── */
 .testimonials-section { background: var(--c-dark); }
 
@@ -874,8 +878,6 @@ body.modal-open { overflow: hidden; }
   .hero-actions { flex-direction: column; }
   .btn-primary, .btn-ghost { text-align: center; width: 100%; }
 
-  /* primeira imagem (fachada hero): aproxima e dá mais altura no mobile */
-  .hero-image-wrap { height: 100%; margin-top: 1.5rem; }
-  .hero-image-wrap .media-placeholder { aspect-ratio: 4/3; }
-  .hero-image-wrap .media-placeholder img { object-position: center; }
+  /* primeira imagem (fachada hero): aproxima no mobile */
+  .hero-image-wrap { margin-top: 1.5rem; }
 }
