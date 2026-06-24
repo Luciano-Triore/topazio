@@ -36,6 +36,17 @@ WEBHOOK_SECRET=replace-me-with-a-long-random-string
 # META_QUALIFIED_LEAD_EVENT_NAME=QualifiedLead
 # DEFAULT_COUNTRY_CODE=55
 #
+# Per-page Pixel routing (página B = /topaziob, público distinto, Pixel próprio).
+# O navegador da B usa o Pixel hardcoded em topaziob/index.html (1096376869378409);
+# estas envs fazem o CAPI server-side mandar os eventos page:'B' para o MESMO Pixel.
+# Se ficarem vazias, a B cai no Pixel/token da página A.
+# META_PIXEL_ID_B=
+# META_ACCESS_TOKEN_B=
+#
 # Optional GA4 server-side (Measurement Protocol). Leave unset to skip GA4.
-# GA4_MEASUREMENT_ID=
+# Página A:
+# GA4_MEASUREMENT_ID=G-2QH3VL6WB1
 # GA4_API_SECRET=
+# Página B (/topaziob) — propriedade GA4 própria:
+# GA4_MEASUREMENT_ID_B=G-X23KV38189
+# GA4_API_SECRET_B=

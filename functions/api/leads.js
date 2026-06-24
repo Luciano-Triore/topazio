@@ -6,6 +6,10 @@
 //
 // Source: event_log (Lead events only) LEFT JOIN sessions via session_id.
 // Bots are excluded by default; pass include_bots=1 to see them.
+//
+// Window: ?days=N (trailing) OR ?from=YYYY-MM-DD&to=YYYY-MM-DD (absolute).
+
+import { resolveWindow } from '../lib/range.js';
 
 export async function onRequestGet(context) {
   const { request, env } = context;
@@ -16,10 +20,9 @@ export async function onRequestGet(context) {
     return json({ error: 'Unauthorized' }, 401);
   }
 
-  const days = clampInt(url.searchParams.get('days'), 30, 1, 365);
+  const { sinceTs: since, untilTs: until, days } = resolveWindow(url);
   const limit = clampInt(url.searchParams.get('limit'), 100, 1, 500);
   const includeBots = url.searchParams.get('include_bots') === '1';
-  const since = Math.floor(Date.now() / 1000) - days * 86400;
 
   const botClause = includeBots ? '' : 'AND e.is_bot = 0';
 
@@ -68,10 +71,11 @@ export async function onRequestGet(context) {
       LEFT JOIN sessions s ON e.session_id = s.session_id
       WHERE e.event_name = 'Lead'
         AND e.timestamp >= ?
+        AND e.timestamp <= ?
         ${botClause}
       ORDER BY e.timestamp DESC
       LIMIT ?
-    `).bind(since, limit).all();
+    `).bind(since, until, limit).all();
 
     // Summary counts grouped by utm_source for the summary card above the table.
     const summary = await env.DB.prepare(`
@@ -82,10 +86,11 @@ export async function onRequestGet(context) {
       LEFT JOIN sessions s ON e.session_id = s.session_id
       WHERE e.event_name = 'Lead'
         AND e.timestamp >= ?
+        AND e.timestamp <= ?
         AND e.is_bot = 0
       GROUP BY utm_source
       ORDER BY count DESC
-    `).bind(since).all();
+    `).bind(since, until).all();
 
     // Quantos abriram o formulário (pop-up) no período — base para a taxa de
     // desistência: quem abriu (FormOpen) mas não enviou (Lead). Disparado pela LP.
@@ -94,8 +99,9 @@ export async function onRequestGet(context) {
       FROM event_log
       WHERE event_name = 'FormOpen'
         AND timestamp >= ?
+        AND timestamp <= ?
         AND is_bot = 0
-    `).bind(since).first();
+    `).bind(since, until).first();
 
     // Contagem de leads por página (A vs B) no período — usado nos KPIs do dash.
     // Subquery: agrupa pelo VALOR derivado de page (event_log tem coluna `page`,
@@ -112,10 +118,11 @@ export async function onRequestGet(context) {
         LEFT JOIN sessions s ON e.session_id = s.session_id
         WHERE e.event_name = 'Lead'
           AND e.timestamp >= ?
+          AND e.timestamp <= ?
           AND e.is_bot = 0
       )
       GROUP BY page
-    `).bind(since).all();
+    `).bind(since, until).all();
 
     const byPage = { A: 0, B: 0 };
     for (const r of byPageRows.results || []) {

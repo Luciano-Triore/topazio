@@ -32,7 +32,10 @@
     ===================================================================
   -->
   <script>
-    var META_PIXEL_ID = '1806281186721506';
+    // Página B usa um Pixel PRÓPRIO (público distinto da página A).
+    // O CAPI server-side roteia por page:'B' para o mesmo pixel — ver
+    // functions/tracker.js (env META_PIXEL_ID_B / META_ACCESS_TOKEN_B).
+    var META_PIXEL_ID = '1096376869378409';
     var LANDING_PAGE = 'B';
 
     (function () {

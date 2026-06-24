@@ -16,6 +16,10 @@
 //   leads_a, leads_b, cpl_a, cpl_b,
 //   tag_a, tag_b
 // }
+//
+// Window: ?days=N (trailing) OR ?from=YYYY-MM-DD&to=YYYY-MM-DD (absolute).
+
+import { resolveWindow } from '../lib/range.js';
 
 export async function onRequestGet(context) {
   const { request, env } = context;
@@ -26,9 +30,7 @@ export async function onRequestGet(context) {
     return json({ error: 'Unauthorized' }, 401);
   }
 
-  const days = clampInt(url.searchParams.get('days'), 30, 1, 365);
-  const since = Math.floor(Date.now() / 1000) - days * 86400;
-  const sinceDate = ymd(new Date(since * 1000));
+  const { sinceTs: since, untilTs: until, sinceDate, untilDate, days } = resolveWindow(url);
 
   const tagA = env.CAMPAIGN_TAG_A || '[A]';
   const tagB = env.CAMPAIGN_TAG_B || '[B]';
@@ -38,16 +40,16 @@ export async function onRequestGet(context) {
     const totalRow = await env.DB.prepare(`
       SELECT COALESCE(SUM(spend_cents), 0) as cents, MAX(currency) as currency
       FROM ad_spend
-      WHERE platform = 'meta' AND date >= ?
-    `).bind(sinceDate).first();
+      WHERE platform = 'meta' AND date >= ? AND date <= ?
+    `).bind(sinceDate, untilDate).first();
 
     const spendByTag = async (tag) => {
       const r = await env.DB.prepare(`
         SELECT COALESCE(SUM(spend_cents), 0) as cents
         FROM ad_spend
-        WHERE platform = 'meta' AND date >= ?
+        WHERE platform = 'meta' AND date >= ? AND date <= ?
           AND campaign_name LIKE ?
-      `).bind(sinceDate, `%${tag}%`).first();
+      `).bind(sinceDate, untilDate, `%${tag}%`).first();
       return Number(r?.cents || 0) / 100;
     };
 
@@ -70,10 +72,11 @@ export async function onRequestGet(context) {
         LEFT JOIN sessions s ON e.session_id = s.session_id
         WHERE e.event_name = 'Lead'
           AND e.timestamp >= ?
+          AND e.timestamp <= ?
           AND e.is_bot = 0
       )
       GROUP BY page
-    `).bind(since).all();
+    `).bind(since, until).all();
 
     let leadsA = 0, leadsB = 0;
     for (const r of leadRows.results || []) {
@@ -100,11 +103,6 @@ export async function onRequestGet(context) {
   }
 }
 
-function ymd(d) {
-  const pad = n => String(n).padStart(2, '0');
-  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
-}
-
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -113,10 +111,4 @@ function json(body, status = 200) {
       'Access-Control-Allow-Origin': '*',
     },
   });
-}
-
-function clampInt(raw, fallback, min, max) {
-  const n = parseInt(raw || '', 10);
-  if (Number.isNaN(n)) return fallback;
-  return Math.max(min, Math.min(max, n));
 }

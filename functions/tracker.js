@@ -223,7 +223,15 @@ export async function onRequestPost(context) {
 // META CAPI
 // -------------------------------------------------------
 async function sendToMeta({ body, clientIp, userAgent, fbp, fbc, hashedEm, hashedFn, hashedLn, hashedPh, hashedExternalId, sessionData, env }) {
-  if (!env.META_PIXEL_ID || !env.META_ACCESS_TOKEN) {
+  // Per-page Pixel routing: page B has its own audience and its own Pixel.
+  // The browser fires fbq to the page's Pixel (hardcoded in the LP); the
+  // server-side CAPI must hit the SAME Pixel or dedup/attribution breaks.
+  // Falls back to the page-A Pixel/token when the *_B vars aren't set.
+  const isB = String(body.page || '').toUpperCase() === 'B';
+  const pixelId = (isB && env.META_PIXEL_ID_B) ? env.META_PIXEL_ID_B : env.META_PIXEL_ID;
+  const accessToken = (isB && env.META_ACCESS_TOKEN_B) ? env.META_ACCESS_TOKEN_B : env.META_ACCESS_TOKEN;
+
+  if (!pixelId || !accessToken) {
     return { skipped: 'missing meta env', payload: null, response: null };
   }
 
@@ -256,7 +264,7 @@ async function sendToMeta({ body, clientIp, userAgent, fbp, fbc, hashedEm, hashe
   }
 
   const payloadJson = JSON.stringify(payload);
-  const response = await fetch(`https://graph.facebook.com/v25.0/${env.META_PIXEL_ID}/events?access_token=${env.META_ACCESS_TOKEN}`, {
+  const response = await fetch(`https://graph.facebook.com/v25.0/${pixelId}/events?access_token=${accessToken}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: payloadJson,
@@ -268,7 +276,13 @@ async function sendToMeta({ body, clientIp, userAgent, fbp, fbc, hashedEm, hashe
 // GA4 MEASUREMENT PROTOCOL — CONVERSIONS ONLY
 // -------------------------------------------------------
 async function sendToGA4({ body, gaClientId, gaSessionId, hashedEm, env }) {
-  if (!env.GA4_MEASUREMENT_ID || !env.GA4_API_SECRET) {
+  // Per-page GA4 property routing (page B has its own measurement ID + API
+  // secret). Falls back to the page-A property when the *_B vars aren't set.
+  const isB = String(body.page || '').toUpperCase() === 'B';
+  const measurementId = (isB && env.GA4_MEASUREMENT_ID_B) ? env.GA4_MEASUREMENT_ID_B : env.GA4_MEASUREMENT_ID;
+  const apiSecret = (isB && env.GA4_API_SECRET_B) ? env.GA4_API_SECRET_B : env.GA4_API_SECRET;
+
+  if (!measurementId || !apiSecret) {
     return { skipped: 'missing ga4 env', payload: null, response: null };
   }
 
@@ -299,7 +313,7 @@ async function sendToGA4({ body, gaClientId, gaSessionId, hashedEm, env }) {
   }
 
   const payloadJson = JSON.stringify(payload);
-  const response = await fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${env.GA4_MEASUREMENT_ID}&api_secret=${env.GA4_API_SECRET}`, {
+  const response = await fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${measurementId}&api_secret=${apiSecret}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: payloadJson,
