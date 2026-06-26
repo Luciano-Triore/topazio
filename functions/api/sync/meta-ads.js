@@ -49,7 +49,7 @@ export async function onRequestPost(context) {
   try {
     const accountId = String(env.META_ADS_ACCOUNT_ID).replace(/^act_/, '');
     const url = `https://graph.facebook.com/v22.0/act_${accountId}/insights` +
-      `?fields=campaign_id,campaign_name,spend,impressions,clicks,account_currency,date_start` +
+      `?fields=campaign_id,campaign_name,spend,impressions,clicks,reach,inline_link_clicks,actions,account_currency,date_start` +
       `&time_range=${encodeURIComponent(JSON.stringify({ since: dateFrom, until: dateTo }))}` +
       `&level=campaign` +
       `&time_increment=1` +
@@ -108,16 +108,19 @@ async function upsertAdSpend(db, rows) {
 
   const stmt = db.prepare(`
     INSERT INTO ad_spend
-      (platform, date, campaign_id, campaign_name, ad_id, ad_name, spend_cents, currency, impressions, clicks, synced_at)
-    VALUES ('meta', ?, ?, ?, NULL, NULL, ?, ?, ?, ?, ?)
+      (platform, date, campaign_id, campaign_name, ad_id, ad_name, spend_cents, currency, impressions, clicks, reach, link_clicks, landing_page_views, synced_at)
+    VALUES ('meta', ?, ?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(platform, date, campaign_id, COALESCE(ad_id, ''))
     DO UPDATE SET
-      campaign_name = excluded.campaign_name,
-      spend_cents   = excluded.spend_cents,
-      currency      = excluded.currency,
-      impressions   = excluded.impressions,
-      clicks        = excluded.clicks,
-      synced_at     = excluded.synced_at
+      campaign_name      = excluded.campaign_name,
+      spend_cents        = excluded.spend_cents,
+      currency           = excluded.currency,
+      impressions        = excluded.impressions,
+      clicks             = excluded.clicks,
+      reach              = excluded.reach,
+      link_clicks        = excluded.link_clicks,
+      landing_page_views = excluded.landing_page_views,
+      synced_at          = excluded.synced_at
   `);
 
   const batch = rows.map(r => stmt.bind(
@@ -128,11 +131,22 @@ async function upsertAdSpend(db, rows) {
     r.account_currency || 'BRL',
     parseInt(r.impressions || '0', 10) || 0,
     parseInt(r.clicks || '0', 10) || 0,
+    parseInt(r.reach || '0', 10) || 0,
+    parseInt(r.inline_link_clicks || '0', 10) || 0,
+    landingPageViews(r.actions),
     now,
   ));
 
   await db.batch(batch);
   return rows.length;
+}
+
+// Meta returns landing page views inside the `actions` array as an entry with
+// action_type 'landing_page_view'. Defensive: actions may be absent.
+function landingPageViews(actions) {
+  if (!Array.isArray(actions)) return 0;
+  const hit = actions.find(a => a?.action_type === 'landing_page_view');
+  return parseInt(hit?.value || '0', 10) || 0;
 }
 
 function resolveRange(dateFrom, dateTo) {

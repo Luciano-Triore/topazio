@@ -36,27 +36,60 @@ export async function onRequestGet(context) {
   const tagB = env.CAMPAIGN_TAG_B || '[B]';
 
   try {
-    // --- Spend total + moeda ---
-    const totalRow = await env.DB.prepare(`
-      SELECT COALESCE(SUM(spend_cents), 0) as cents, MAX(currency) as currency
-      FROM ad_spend
-      WHERE platform = 'meta' AND date >= ? AND date <= ?
-    `).bind(sinceDate, untilDate).first();
+    const SUMS = `
+      COALESCE(SUM(spend_cents), 0)        AS cents,
+      COALESCE(SUM(impressions), 0)        AS impressions,
+      COALESCE(SUM(reach), 0)              AS reach,
+      COALESCE(SUM(link_clicks), 0)        AS link_clicks,
+      COALESCE(SUM(landing_page_views), 0) AS landing_page_views
+    `;
 
-    const spendByTag = async (tag) => {
+    // Raw sums for the whole window (all campaigns) or a tag-filtered slice.
+    // tag === null → total. Deriving rates from these summed counts (rather than
+    // averaging per-day rates) is the only correct way to aggregate a window.
+    const aggregate = async (tag) => {
+      const where = tag == null
+        ? `platform = 'meta' AND date >= ? AND date <= ?`
+        : `platform = 'meta' AND date >= ? AND date <= ? AND campaign_name LIKE ?`;
+      const binds = tag == null ? [sinceDate, untilDate] : [sinceDate, untilDate, `%${tag}%`];
       const r = await env.DB.prepare(`
-        SELECT COALESCE(SUM(spend_cents), 0) as cents
-        FROM ad_spend
-        WHERE platform = 'meta' AND date >= ? AND date <= ?
-          AND campaign_name LIKE ?
-      `).bind(sinceDate, untilDate, `%${tag}%`).first();
-      return Number(r?.cents || 0) / 100;
+        SELECT ${SUMS}, MAX(currency) as currency
+        FROM ad_spend WHERE ${where}
+      `).bind(...binds).first();
+      return {
+        spend: Number(r?.cents || 0) / 100,
+        impressions: Number(r?.impressions || 0),
+        reach: Number(r?.reach || 0),
+        link_clicks: Number(r?.link_clicks || 0),
+        landing_page_views: Number(r?.landing_page_views || 0),
+        currency: r?.currency || 'BRL',
+      };
     };
 
-    const totalSpend = Number(totalRow?.cents || 0) / 100;
-    const spendA = await spendByTag(tagA);
-    const spendB = await spendByTag(tagB);
+    // Turn raw sums into the dashboard metric set. Rates are null when their
+    // denominator is 0 so the UI shows '—' instead of a misleading 0 or NaN.
+    const derive = (a) => ({
+      spend: a.spend,
+      impressions: a.impressions,
+      reach: a.reach,
+      link_clicks: a.link_clicks,
+      landing_page_views: a.landing_page_views,
+      frequency: a.reach > 0 ? a.impressions / a.reach : null,
+      link_ctr: a.impressions > 0 ? (a.link_clicks / a.impressions) * 100 : null,
+      cpm: a.impressions > 0 ? (a.spend / a.impressions) * 1000 : null,
+      cpc_link: a.link_clicks > 0 ? a.spend / a.link_clicks : null,
+      cost_per_lpv: a.landing_page_views > 0 ? a.spend / a.landing_page_views : null,
+    });
+
+    const aTotal = await aggregate(null);
+    const aA = await aggregate(tagA);
+    const aB = await aggregate(tagB);
+
+    const totalSpend = aTotal.spend;
+    const spendA = aA.spend;
+    const spendB = aB.spend;
     const spendUntagged = Math.max(0, totalSpend - spendA - spendB);
+    const totalRow = { currency: aTotal.currency };
 
     // --- Leads por página --- (subquery: agrupa pelo valor derivado, não pela
     // coluna crua `page`, que separaria '' de 'A')
@@ -97,6 +130,13 @@ export async function onRequestGet(context) {
       cpl_b: leadsB > 0 ? spendB / leadsB : null,
       tag_a: tagA,
       tag_b: tagB,
+      // Per-página métricas Meta (alcance, frequência, impressões, CTR link,
+      // CPM, CPC link, visualizações de página, custo/visualização).
+      metrics: {
+        a: derive(aA),
+        b: derive(aB),
+        total: derive(aTotal),
+      },
     });
   } catch (err) {
     return json({ error: err.message }, 500);

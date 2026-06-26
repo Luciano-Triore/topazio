@@ -236,6 +236,22 @@
           <div><div class="kpi-label">Custo / lead A</div><div class="text-2xl accent-blue mt-1" id="ads-cpl-a">—</div></div>
           <div><div class="kpi-label">Custo / lead B</div><div class="text-2xl accent-purple mt-1" id="ads-cpl-b">—</div></div>
         </div>
+
+        <!-- Métricas detalhadas do Meta por página -->
+        <div class="mt-6 overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-xs uppercase tracking-wide" style="color:var(--muted)">
+                <th class="text-left font-medium pb-2 pr-3">Métrica</th>
+                <th class="text-right font-medium pb-2 px-3 accent-blue">A <span style="color:var(--muted)">/topazio</span></th>
+                <th class="text-right font-medium pb-2 px-3 accent-purple">B <span style="color:var(--muted)">/topaziob</span></th>
+                <th class="text-right font-medium pb-2 pl-3">Total</th>
+              </tr>
+            </thead>
+            <tbody id="ads-metrics-body" class="divide-y" style="border-color:var(--border)"></tbody>
+          </table>
+        </div>
+
         <div class="text-[11px] mt-3" style="color:var(--muted)" id="ads-note">&nbsp;</div>
       </section>
 
@@ -406,6 +422,7 @@
   function $(id){ return document.getElementById(id); }
   function int(n){ return Math.round(Number(n)||0).toLocaleString('pt-BR'); }
   function pct(n){ return (Number(n)||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:1})+'%'; }
+  function num2(n){ return (Number(n)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
   function money(n,cur){ return (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:cur||'BRL',maximumFractionDigits:0}); }
   function money2(n,cur){ return (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:cur||'BRL',minimumFractionDigits:2,maximumFractionDigits:2}); }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
@@ -608,18 +625,48 @@
   // -------- render: Meta Ads A/B --------
   function renderAds(d){
     if(!d || d.error){ ['ads-total','ads-spend-a','ads-spend-b','ads-cpl-a','ads-cpl-b'].forEach(function(id){ $(id).textContent='—'; });
-      $('ads-tags').textContent='[A] / [B]'; $('ads-note').textContent=''; return; }
+      $('ads-tags').textContent='[A] / [B]'; $('ads-note').textContent=''; renderAdsMetrics(null,'BRL'); return; }
     var cur=d.currency||'BRL';
-    $('ads-total').textContent   = d.total_spend>0 ? money(d.total_spend,cur) : '—';
-    $('ads-spend-a').textContent = d.spend_a>0 ? money(d.spend_a,cur) : '—';
-    $('ads-spend-b').textContent = d.spend_b>0 ? money(d.spend_b,cur) : '—';
+    $('ads-total').textContent   = d.total_spend>0 ? money2(d.total_spend,cur) : '—';
+    $('ads-spend-a').textContent = d.spend_a>0 ? money2(d.spend_a,cur) : '—';
+    $('ads-spend-b').textContent = d.spend_b>0 ? money2(d.spend_b,cur) : '—';
     $('ads-cpl-a').textContent   = d.cpl_a!=null ? money2(d.cpl_a,cur) : '—';
     $('ads-cpl-b').textContent   = d.cpl_b!=null ? money2(d.cpl_b,cur) : '—';
     $('ads-tags').textContent    = (d.tag_a||'[A]')+' / '+(d.tag_b||'[B]');
+    renderAdsMetrics(d.metrics, cur);
     var note=$('ads-note');
     if(!(d.total_spend>0)) note.textContent='Sem investimento sincronizado nesta janela — configure o sync do Meta (SYNC_SECRET, META_ADS_*) e o cron de /api/sync/meta-ads.';
-    else if(d.spend_untagged>0) note.textContent=money(d.spend_untagged,cur)+' em campanhas sem marcador '+(d.tag_a||'[A]')+'/'+(d.tag_b||'[B]')+' (contam só no total).';
+    else if(d.spend_untagged>0) note.textContent=money2(d.spend_untagged,cur)+' em campanhas sem marcador '+(d.tag_a||'[A]')+'/'+(d.tag_b||'[B]')+' (contam só no total).';
     else note.textContent=' ';
+  }
+
+  // -------- render: Meta Ads — tabela de métricas por página --------
+  // Linhas = métricas pedidas; colunas = A / B / Total. Taxas vêm prontas do
+  // endpoint (derivadas de somas de contagens), aqui só formatamos.
+  var ADS_METRIC_ROWS = [
+    ['reach',              'Alcance',                   function(m,c){ return m.reach>0 ? int(m.reach) : '—'; }],
+    ['frequency',          'Frequência',                function(m,c){ return m.frequency!=null ? num2(m.frequency) : '—'; }],
+    ['impressions',        'Impressões',                function(m,c){ return m.impressions>0 ? int(m.impressions) : '—'; }],
+    ['link_ctr',           'CTR (clique no link)',      function(m,c){ return m.link_ctr!=null ? pct(m.link_ctr) : '—'; }],
+    ['cpm',                'CPM (custo/1.000 impr.)',   function(m,c){ return m.cpm!=null ? money2(m.cpm,c) : '—'; }],
+    ['cpc_link',           'CPC (clique no link)',      function(m,c){ return m.cpc_link!=null ? money2(m.cpc_link,c) : '—'; }],
+    ['landing_page_views', 'Visualizações de página',   function(m,c){ return m.landing_page_views>0 ? int(m.landing_page_views) : '—'; }],
+    ['cost_per_lpv',       'Custo / visualização',      function(m,c){ return m.cost_per_lpv!=null ? money2(m.cost_per_lpv,c) : '—'; }],
+  ];
+
+  function renderAdsMetrics(metrics, cur){
+    var tb = $('ads-metrics-body'); if(!tb) return;
+    var m = metrics || { a:{}, b:{}, total:{} };
+    var a = m.a||{}, b = m.b||{}, t = m.total||{};
+    tb.innerHTML = ADS_METRIC_ROWS.map(function(row){
+      var label = row[1], fmt = row[2];
+      return '<tr>'+
+        '<td class="py-1.5 pr-3" style="color:var(--muted)">'+label+'</td>'+
+        '<td class="py-1.5 px-3 text-right mono accent-blue">'+fmt(a,cur)+'</td>'+
+        '<td class="py-1.5 px-3 text-right mono accent-purple">'+fmt(b,cur)+'</td>'+
+        '<td class="py-1.5 pl-3 text-right mono">'+fmt(t,cur)+'</td>'+
+      '</tr>';
+    }).join('');
   }
 
   // -------- render: WhatsApp / CTWA --------
