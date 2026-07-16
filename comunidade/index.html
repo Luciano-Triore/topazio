@@ -4,7 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Comunidade</title>
+  <title>Comunidade Triore</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap"
+    rel="stylesheet"
+  />
 
   <!-- ===================== Meta Pixel ===================== -->
   <script>
@@ -24,10 +31,19 @@
 
   <style>
     :root {
-      --whatsapp: #25c360;
-      --whatsapp-dark: #1eb055;
+      --navy:        #1B2A4A;
+      --navy-mid:    #2C3E6B;
+      --cream:       #F9F5EF;
+      --gold:        #B8924A;
+      --gold-light:  #D4AD6E;
+      --text:        #2A2A2A;
+      --text-soft:   #7A7A8A;
+      --whatsapp:    #25C360;
+      --whatsapp-dark: #1EB055;
+      --font:        'Lato', system-ui, sans-serif;
+      --font-display:'Libre Baskerville', Georgia, serif;
     }
-    * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
     body {
       min-height: 100vh;
@@ -35,27 +51,75 @@
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
-      background: #f5f6f8;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: var(--font);
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 50% -10%, var(--navy-mid) 0%, var(--navy) 60%);
+      -webkit-font-smoothing: antialiased;
     }
+
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--cream);
+      border: 1px solid rgba(184, 146, 74, 0.35);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(27, 42, 74, 0.35);
+      padding: 2.75rem 2rem 2.5rem;
+      text-align: center;
+    }
+
+    .logo-img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      margin: 0 auto 0.75rem;
+      display: block;
+    }
+    .brand {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--gold);
+      margin-bottom: 1.75rem;
+    }
+    .brand span {
+      display: block;
+      font-family: var(--font);
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: 0.28em;
+      color: var(--text-soft);
+      margin-top: 0.25rem;
+    }
+
+    .headline {
+      font-family: var(--font-display);
+      font-size: 1.55rem;
+      line-height: 1.35;
+      color: var(--navy);
+      margin: 0 0 2rem;
+    }
+
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: .5rem;
+      gap: 0.5rem;
       width: 100%;
-      max-width: 360px;
+      max-width: 340px;
       padding: 1.05rem 2rem;
+      font-family: var(--font);
       font-size: 1.1rem;
       font-weight: 700;
       line-height: 1.2;
-      text-align: center;
       text-decoration: none;
       color: #fff;
       background: var(--whatsapp);
       border: none;
       border-radius: 999px;
-      box-shadow: 0 6px 20px rgba(37, 195, 96, .3);
+      box-shadow: 0 6px 20px rgba(37, 195, 96, 0.32);
       cursor: pointer;
       transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
     }
@@ -63,14 +127,26 @@
     .btn:hover {
       transform: translateY(-2px);
       background: var(--whatsapp-dark);
-      box-shadow: 0 10px 26px rgba(37, 195, 96, .38);
+      box-shadow: 0 10px 26px rgba(37, 195, 96, 0.4);
     }
     .btn:active { transform: translateY(0); }
+
+    @media (max-width: 420px) {
+      .card { padding: 2.25rem 1.4rem 2rem; }
+      .headline { font-size: 1.35rem; }
+    }
   </style>
 </head>
 <body>
-  <a id="join-btn" class="btn"
-     href="https://chat.whatsapp.com/HW4yyHvMqtl4h2OSn0FO3m">Entrar na comunidade</a>
+  <main class="card">
+    <img class="logo-img" src="/topazio/fotos/logo-triore.webp" alt="Triore" width="56" height="56" />
+    <p class="brand">TRIORE<span>COMUNIDADE</span></p>
+
+    <h1 class="headline">Clique no botão abaixo e faça parte da nossa comunidade</h1>
+
+    <a id="join-btn" class="btn"
+       href="https://chat.whatsapp.com/HW4yyHvMqtl4h2OSn0FO3m">Entrar na comunidade</a>
+  </main>
 
   <script>
     (function () {
