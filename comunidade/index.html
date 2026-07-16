@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Comunidade</title>
+
+  <!-- ===================== Meta Pixel ===================== -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1164453096762108');
+    fbq('track', 'PageView');
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=1164453096762108&ev=PageView&noscript=1" />
+  </noscript>
+  <!-- ================== fim Meta Pixel ==================== -->
+
+  <style>
+    :root {
+      --whatsapp: #25c360;
+      --whatsapp-dark: #1eb055;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: #f5f6f8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      width: 100%;
+      max-width: 360px;
+      padding: 1.05rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1.2;
+      text-align: center;
+      text-decoration: none;
+      color: #fff;
+      background: var(--whatsapp);
+      border: none;
+      border-radius: 999px;
+      box-shadow: 0 6px 20px rgba(37, 195, 96, .3);
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    .btn::before { content: "💬"; }
+    .btn:hover {
+      transform: translateY(-2px);
+      background: var(--whatsapp-dark);
+      box-shadow: 0 10px 26px rgba(37, 195, 96, .38);
+    }
+    .btn:active { transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <a id="join-btn" class="btn"
+     href="https://chat.whatsapp.com/HW4yyHvMqtl4h2OSn0FO3m">Entrar na comunidade</a>
+
+  <script>
+    (function () {
+      var COMMUNITY_URL = 'https://chat.whatsapp.com/HW4yyHvMqtl4h2OSn0FO3m';
+      var btn = document.getElementById('join-btn');
+
+      btn.addEventListener('click', function (e) {
+        // Se o Pixel não carregou, deixa a navegação normal seguir.
+        if (typeof window.fbq !== 'function') return;
+
+        e.preventDefault();
+
+        var eventId = (window.crypto && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : (Date.now() + '-' + Math.random().toString(36).slice(2));
+
+        fbq('track', 'CompleteRegistration', {}, { eventID: eventId });
+
+        // Pequeno atraso para o beacon do Pixel sair antes de navegar.
+        var redirected = false;
+        function go() {
+          if (redirected) return;
+          redirected = true;
+          window.location.href = COMMUNITY_URL;
+        }
+        setTimeout(go, 250);
+      });
+    })();
+  </script>
+</body>
+</html>
